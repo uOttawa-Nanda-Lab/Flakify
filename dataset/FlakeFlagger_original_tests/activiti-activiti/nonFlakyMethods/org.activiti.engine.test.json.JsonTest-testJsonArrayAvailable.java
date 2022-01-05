@@ -1,0 +1,55 @@
+@Deployment public void testJsonArrayAvailable(){
+  Map<String,Object> vars=new HashMap<String,Object>();
+  ArrayNode varArray=objectMapper.createArrayNode();
+  ObjectNode varNode=objectMapper.createObjectNode();
+  varNode.put("var","myValue");
+  varArray.add(varNode);
+  vars.put("myJsonArr",varArray);
+  ProcessInstance processInstance=runtimeService.startProcessInstanceByKey("testJsonAvailableProcess",vars);
+  ArrayNode value=(ArrayNode)runtimeService.getVariable(processInstance.getId(),"myJsonArr");
+  assertNotNull(value);
+  assertEquals("myValue",value.get(0).get("var").asText());
+  ArrayNode varArray2=objectMapper.createArrayNode();
+  varNode=objectMapper.createObjectNode();
+  varNode.put("var","myValue");
+  varArray2.add(varNode);
+  varNode=objectMapper.createObjectNode();
+  varNode.put("var","myOtherValue");
+  varArray2.add(varNode);
+  runtimeService.setVariable(processInstance.getId(),"myJsonArr",varArray2);
+  value=(ArrayNode)runtimeService.getVariable(processInstance.getId(),"myJsonArr");
+  assertNotNull(value);
+  assertEquals("myValue",value.get(0).get("var").asText());
+  assertEquals("myOtherValue",value.get(1).get("var").asText());
+  Task task=taskService.createTaskQuery().active().singleResult();
+  assertNotNull(task);
+  ArrayNode varArray3=objectMapper.createArrayNode();
+  varNode=objectMapper.createObjectNode();
+  varNode.put("var","myValue");
+  varArray3.add(varNode);
+  varNode=objectMapper.createObjectNode();
+  varNode.put("var","myOtherValue");
+  varArray3.add(varNode);
+  varNode=objectMapper.createObjectNode();
+  varNode.put("var","myThirdValue");
+  varArray3.add(varNode);
+  vars=new HashMap<String,Object>();
+  vars.put("myJsonArr",varArray3);
+  taskService.complete(task.getId(),vars);
+  value=(ArrayNode)runtimeService.getVariable(processInstance.getId(),"myJsonArr");
+  assertNotNull(value);
+  assertEquals("myValue",value.get(0).get("var").asText());
+  assertEquals("myOtherValue",value.get(1).get("var").asText());
+  assertEquals("myThirdValue",value.get(2).get("var").asText());
+  task=taskService.createTaskQuery().active().singleResult();
+  assertNotNull(task);
+  assertEquals("userTaskSuccess",task.getTaskDefinitionKey());
+  if (processEngineConfiguration.getHistoryLevel().isAtLeast(HistoryLevel.AUDIT)) {
+    HistoricVariableInstance historicVariableInstance=historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstance.getProcessInstanceId()).singleResult();
+    value=(ArrayNode)historicVariableInstance.getValue();
+    assertNotNull(value);
+    assertEquals("myValue",value.get(0).get("var").asText());
+    assertEquals("myOtherValue",value.get(1).get("var").asText());
+    assertEquals("myThirdValue",value.get(2).get("var").asText());
+  }
+}

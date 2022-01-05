@@ -1,0 +1,36 @@
+@Test public void testWriteLineChunks() throws Exception {
+  HttpParams params=new BasicHttpParams();
+  SessionOutputBuffer outbuf=new SessionOutputBufferImpl(16,16,params);
+  SessionInputBuffer inbuf=new SessionInputBufferImpl(16,16,params);
+  ReadableByteChannel inChannel=newChannel("One\r\nTwo\r\nThree");
+  inbuf.fill(inChannel);
+  CharArrayBuffer line=new CharArrayBuffer(64);
+  line.clear();
+  Assert.assertTrue(inbuf.readLine(line,false));
+  Assert.assertEquals("One",line.toString());
+  outbuf.writeLine(line);
+  line.clear();
+  Assert.assertTrue(inbuf.readLine(line,false));
+  Assert.assertEquals("Two",line.toString());
+  outbuf.writeLine(line);
+  line.clear();
+  Assert.assertFalse(inbuf.readLine(line,false));
+  inChannel=newChannel("\r\nFour");
+  inbuf.fill(inChannel);
+  line.clear();
+  Assert.assertTrue(inbuf.readLine(line,false));
+  Assert.assertEquals("Three",line.toString());
+  outbuf.writeLine(line);
+  inbuf.fill(inChannel);
+  line.clear();
+  Assert.assertTrue(inbuf.readLine(line,true));
+  Assert.assertEquals("Four",line.toString());
+  outbuf.writeLine(line);
+  line.clear();
+  Assert.assertFalse(inbuf.readLine(line,true));
+  ByteArrayOutputStream outstream=new ByteArrayOutputStream();
+  WritableByteChannel outChannel=newChannel(outstream);
+  outbuf.flush(outChannel);
+  String s=new String(outstream.toByteArray(),"US-ASCII");
+  Assert.assertEquals("One\r\nTwo\r\nThree\r\nFour\r\n",s);
+}

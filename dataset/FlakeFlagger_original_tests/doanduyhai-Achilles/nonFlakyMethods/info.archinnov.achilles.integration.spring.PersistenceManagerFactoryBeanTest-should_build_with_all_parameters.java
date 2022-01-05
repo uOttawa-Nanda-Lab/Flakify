@@ -1,0 +1,22 @@
+@Test public void should_build_with_all_parameters() throws Exception {
+  when(cluster.connect("keyspace")).thenThrow(IllegalStateException.class);
+  factory.setCluster(cluster);
+  factory.setEntityPackages("info.archinnov.achilles.test.integration.entity");
+  factory.setKeyspaceName("keyspace");
+  factory.setObjectMapper(objectMapper);
+  factory.setObjectMapperFactory(objectMapperFactory);
+  factory.setConsistencyLevelReadDefault(ONE);
+  factory.setConsistencyLevelWriteDefault(ONE);
+  factory.setConsistencyLevelReadMap(ImmutableMap.of("entity",ONE));
+  factory.setConsistencyLevelWriteMap(ImmutableMap.of("entity",ONE));
+  factory.setForceTableCreation(true);
+  factory.setEntityList(Arrays.<Class<?>>asList(CompleteBean.class));
+  factory.setEnableBeanValidation(true);
+  factory.setBeanValidator(Mockito.mock(Validator.class));
+  factory.setPreparedStatementCacheSize(100);
+  factory.setDisableProxiesWarmUp(true);
+  factory.setInsertStrategy(InsertStrategy.NOT_NULL_FIELDS);
+  factory.setOsgiClassLoader(this.getClass().getClassLoader());
+  exception.expect(IllegalStateException.class);
+  factory.initialize();
+}

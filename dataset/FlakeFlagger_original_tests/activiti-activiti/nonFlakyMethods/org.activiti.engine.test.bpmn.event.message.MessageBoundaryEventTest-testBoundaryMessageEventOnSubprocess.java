@@ -1,0 +1,36 @@
+@Deployment public void testBoundaryMessageEventOnSubprocess(){
+  runtimeService.startProcessInstanceByKey("process");
+  assertEquals(5,runtimeService.createExecutionQuery().count());
+  Task userTask=taskService.createTaskQuery().singleResult();
+  assertNotNull(userTask);
+  Execution executionMessageOne=runtimeService.createExecutionQuery().messageEventSubscriptionName("messageName_one").singleResult();
+  assertNotNull(executionMessageOne);
+  runtimeService.messageEventReceived("messageName_one",executionMessageOne.getId());
+  userTask=taskService.createTaskQuery().singleResult();
+  assertNotNull(userTask);
+  assertEquals("taskAfterMessage_one",userTask.getTaskDefinitionKey());
+  taskService.complete(userTask.getId());
+  assertEquals(0,runtimeService.createProcessInstanceQuery().count());
+  runtimeService.startProcessInstanceByKey("process");
+  Execution executionMessageTwo=runtimeService.createExecutionQuery().messageEventSubscriptionName("messageName_two").singleResult();
+  assertNotNull(executionMessageTwo);
+  runtimeService.messageEventReceived("messageName_two",executionMessageTwo.getId());
+  userTask=taskService.createTaskQuery().singleResult();
+  assertNotNull(userTask);
+  assertEquals("taskAfterMessage_two",userTask.getTaskDefinitionKey());
+  taskService.complete(userTask.getId());
+  assertEquals(0,runtimeService.createProcessInstanceQuery().count());
+  runtimeService.startProcessInstanceByKey("process");
+  userTask=taskService.createTaskQuery().singleResult();
+  assertNotNull(userTask);
+  taskService.complete(userTask.getId());
+  executionMessageOne=runtimeService.createExecutionQuery().messageEventSubscriptionName("messageName_one").singleResult();
+  assertNull(executionMessageOne);
+  executionMessageTwo=runtimeService.createExecutionQuery().messageEventSubscriptionName("messageName_two").singleResult();
+  assertNull(executionMessageTwo);
+  userTask=taskService.createTaskQuery().singleResult();
+  assertNotNull(userTask);
+  assertEquals("taskAfterSubProcess",userTask.getTaskDefinitionKey());
+  taskService.complete(userTask.getId());
+  assertEquals(0,runtimeService.createProcessInstanceQuery().count());
+}

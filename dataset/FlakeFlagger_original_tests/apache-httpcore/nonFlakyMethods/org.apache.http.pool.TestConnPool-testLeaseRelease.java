@@ -1,0 +1,30 @@
+@Test public void testLeaseRelease() throws Exception {
+  HttpConnection conn1=Mockito.mock(HttpConnection.class);
+  HttpConnection conn2=Mockito.mock(HttpConnection.class);
+  HttpConnectionFactory connFactory=Mockito.mock(HttpConnectionFactory.class);
+  Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1);
+  Mockito.when(connFactory.create(Mockito.eq("otherhost"))).thenReturn(conn2);
+  LocalConnPool pool=new LocalConnPool(connFactory,2,10);
+  Future<LocalPoolEntry> future1=pool.lease("somehost",null);
+  LocalPoolEntry entry1=future1.get(1,TimeUnit.SECONDS);
+  Assert.assertNotNull(entry1);
+  Future<LocalPoolEntry> future2=pool.lease("somehost",null);
+  LocalPoolEntry entry2=future2.get(1,TimeUnit.SECONDS);
+  Assert.assertNotNull(entry2);
+  Future<LocalPoolEntry> future3=pool.lease("otherhost",null);
+  LocalPoolEntry entry3=future3.get(1,TimeUnit.SECONDS);
+  Assert.assertNotNull(entry3);
+  PoolStats totals=pool.getTotalStats();
+  Assert.assertEquals(0,totals.getAvailable());
+  Assert.assertEquals(3,totals.getLeased());
+  LocalPoolEntry entry=future1.get();
+  Assert.assertSame(entry1,entry);
+  pool.release(entry1,true);
+  pool.release(entry2,true);
+  pool.release(entry3,false);
+  Mockito.verify(conn1,Mockito.never()).close();
+  Mockito.verify(conn2,Mockito.times(1)).close();
+  totals=pool.getTotalStats();
+  Assert.assertEquals(2,totals.getAvailable());
+  Assert.assertEquals(0,totals.getLeased());
+}

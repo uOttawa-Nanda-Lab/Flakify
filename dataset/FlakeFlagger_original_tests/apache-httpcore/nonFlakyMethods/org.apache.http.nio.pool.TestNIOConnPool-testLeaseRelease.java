@@ -1,0 +1,35 @@
+@Test public void testLeaseRelease() throws Exception {
+  IOSession iosession1=Mockito.mock(IOSession.class);
+  SessionRequest sessionRequest1=Mockito.mock(SessionRequest.class);
+  Mockito.when(sessionRequest1.getAttachment()).thenReturn("somehost");
+  Mockito.when(sessionRequest1.getSession()).thenReturn(iosession1);
+  IOSession iosession2=Mockito.mock(IOSession.class);
+  SessionRequest sessionRequest2=Mockito.mock(SessionRequest.class);
+  Mockito.when(sessionRequest2.getAttachment()).thenReturn("otherhost");
+  Mockito.when(sessionRequest2.getSession()).thenReturn(iosession2);
+  ConnectingIOReactor ioreactor=Mockito.mock(ConnectingIOReactor.class);
+  Mockito.when(ioreactor.connect(Mockito.eq(InetSocketAddress.createUnresolved("somehost",80)),Mockito.any(SocketAddress.class),Mockito.any(),Mockito.any(SessionRequestCallback.class))).thenReturn(sessionRequest1);
+  Mockito.when(ioreactor.connect(Mockito.eq(InetSocketAddress.createUnresolved("otherhost",80)),Mockito.any(SocketAddress.class),Mockito.any(),Mockito.any(SessionRequestCallback.class))).thenReturn(sessionRequest2);
+  LocalSessionPool pool=new LocalSessionPool(ioreactor,2,10);
+  Future<LocalPoolEntry> future1=pool.lease("somehost",null);
+  pool.requestCompleted(sessionRequest1);
+  Future<LocalPoolEntry> future2=pool.lease("somehost",null);
+  pool.requestCompleted(sessionRequest1);
+  Future<LocalPoolEntry> future3=pool.lease("otherhost",null);
+  pool.requestCompleted(sessionRequest2);
+  LocalPoolEntry entry1=future1.get();
+  Assert.assertNotNull(entry1);
+  LocalPoolEntry entry2=future2.get();
+  Assert.assertNotNull(entry2);
+  LocalPoolEntry entry3=future3.get();
+  Assert.assertNotNull(entry3);
+  pool.release(entry1,true);
+  pool.release(entry2,true);
+  pool.release(entry3,false);
+  Mockito.verify(iosession1,Mockito.never()).close();
+  Mockito.verify(iosession2,Mockito.times(1)).close();
+  PoolStats totals=pool.getTotalStats();
+  Assert.assertEquals(2,totals.getAvailable());
+  Assert.assertEquals(0,totals.getLeased());
+  Assert.assertEquals(0,totals.getPending());
+}

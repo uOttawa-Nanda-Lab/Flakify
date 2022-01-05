@@ -1,0 +1,37 @@
+@Test public void test(){
+  AnnotationConfigApplicationContext providerContext=new AnnotationConfigApplicationContext();
+  providerContext.register(TestProviderConfiguration.class);
+  providerContext.refresh();
+  DemoService demoService=providerContext.getBean(DemoService.class);
+  String value=demoService.sayName("Mercy");
+  Assert.assertEquals("Hello,Mercy",value);
+  Class<?> beanClass=AopUtils.getTargetClass(demoService);
+  Assert.assertEquals(DemoServiceImpl.class,beanClass);
+  Assert.assertNotNull(findAnnotation(beanClass,Transactional.class));
+  AnnotationConfigApplicationContext consumerContext=new AnnotationConfigApplicationContext();
+  consumerContext.register(TestConsumerConfiguration.class);
+  consumerContext.refresh();
+  TestConsumerConfiguration consumerConfiguration=consumerContext.getBean(TestConsumerConfiguration.class);
+  demoService=consumerConfiguration.getDemoService();
+  value=demoService.sayName("Mercy");
+  Assert.assertEquals("Hello,Mercy",value);
+  TestConsumerConfiguration.Child child=consumerContext.getBean(TestConsumerConfiguration.Child.class);
+  demoService=child.getDemoServiceFromChild();
+  Assert.assertNotNull(demoService);
+  value=demoService.sayName("Mercy");
+  Assert.assertEquals("Hello,Mercy",value);
+  demoService=child.getDemoServiceFromParent();
+  Assert.assertNotNull(demoService);
+  value=demoService.sayName("Mercy");
+  Assert.assertEquals("Hello,Mercy",value);
+  demoService=child.getDemoServiceFromAncestor();
+  Assert.assertNotNull(demoService);
+  value=demoService.sayName("Mercy");
+  Assert.assertEquals("Hello,Mercy",value);
+  ApplicationConfig applicationConfig=consumerContext.getBean("dubbo-annotation-consumer2",ApplicationConfig.class);
+  Assert.assertEquals("dubbo-consumer2",applicationConfig.getName());
+  RegistryConfig registryConfig=consumerContext.getBean("my-registry2",RegistryConfig.class);
+  Assert.assertEquals("N/A",registryConfig.getAddress());
+  providerContext.close();
+  consumerContext.close();
+}

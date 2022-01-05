@@ -1,0 +1,4 @@
+@Test(expected=InvalidDataAccessApiUsageException.class) public void persistOfNullThrowsInvalidDataAccessApiUsageExceptionWithExceptionTranslation(){
+  this.context=new AnnotationConfigApplicationContext(EmbeddedDataSourceConfiguration.class,HibernateJpaAutoConfiguration.class,TestConfiguration.class,PersistenceExceptionTranslationAutoConfiguration.class);
+  this.context.getBean(TestRepository.class).doSomething();
+}

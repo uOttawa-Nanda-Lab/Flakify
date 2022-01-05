@@ -1,0 +1,31 @@
+@Test public void testLeaseRelease() throws Exception {
+  LocalRoutePool pool=new LocalRoutePool();
+  HttpConnection conn1=Mockito.mock(HttpConnection.class);
+  LocalPoolEntry entry1=pool.add(conn1);
+  HttpConnection conn2=Mockito.mock(HttpConnection.class);
+  LocalPoolEntry entry2=pool.add(conn2);
+  HttpConnection conn3=Mockito.mock(HttpConnection.class);
+  LocalPoolEntry entry3=pool.add(conn3);
+  Assert.assertNotNull(entry1);
+  Assert.assertNotNull(entry2);
+  Assert.assertNotNull(entry3);
+  Assert.assertEquals(3,pool.getAllocatedCount());
+  Assert.assertEquals(0,pool.getAvailableCount());
+  Assert.assertEquals(3,pool.getLeasedCount());
+  Assert.assertEquals(0,pool.getPendingCount());
+  pool.free(entry1,true);
+  pool.free(entry2,false);
+  pool.free(entry3,true);
+  Assert.assertEquals(2,pool.getAllocatedCount());
+  Assert.assertEquals(2,pool.getAvailableCount());
+  Assert.assertEquals(0,pool.getLeasedCount());
+  Assert.assertEquals(0,pool.getPendingCount());
+  Assert.assertSame(entry1,pool.getLastUsed());
+  Assert.assertNotNull(pool.getFree(null));
+  Assert.assertNotNull(pool.getFree(null));
+  Assert.assertNull(pool.getFree(null));
+  Assert.assertEquals(2,pool.getAllocatedCount());
+  Assert.assertEquals(0,pool.getAvailableCount());
+  Assert.assertEquals(2,pool.getLeasedCount());
+  Assert.assertEquals(0,pool.getPendingCount());
+}

@@ -1,0 +1,30 @@
+@Test public void iterator(){
+  BatchContext context=mock(BatchContext.class);
+  Sessions<String,String> sessions=mock(Sessions.class);
+  SessionManager manager=mock(SessionManager.class);
+  Session session=mock(Session.class);
+  String deployment="deployment";
+  String sessionId="session";
+  when(this.batcher.resumeBatch(this.batch)).thenReturn(context);
+  when(this.sso.getSessions()).thenReturn(sessions);
+  when(sessions.getDeployments()).thenReturn(Collections.singleton(deployment));
+  when(sessions.getSession(deployment)).thenReturn(sessionId);
+  when(this.registry.getSessionManager(deployment)).thenReturn(manager);
+  when(manager.getSession(sessionId)).thenReturn(session);
+  when(session.getId()).thenReturn(sessionId);
+  Iterator<Session> results=this.subject.iterator();
+  assertTrue(results.hasNext());
+  Session result=results.next();
+  assertEquals(session.getId(),result.getId());
+  assertFalse(results.hasNext());
+  verifyZeroInteractions(this.batch);
+  verify(context).close();
+  HttpServerExchange exchange=new HttpServerExchange(null);
+  Session mutableSession=mock(Session.class);
+  when(session.getSessionManager()).thenReturn(manager);
+  when(manager.getSession(same(exchange),any())).thenReturn(mutableSession);
+  result.invalidate(exchange);
+  verify(mutableSession).invalidate(same(exchange));
+  verifyZeroInteractions(this.batch);
+  verifyNoMoreInteractions(context);
+}

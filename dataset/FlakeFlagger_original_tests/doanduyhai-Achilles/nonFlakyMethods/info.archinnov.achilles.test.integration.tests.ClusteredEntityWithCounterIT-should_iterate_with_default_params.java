@@ -1,0 +1,37 @@
+@Test public void should_iterate_with_default_params() throws Exception {
+  long partitionKey=RandomUtils.nextLong();
+  insertValues(partitionKey,5);
+  Iterator<ClusteredEntityWithCounter> iter=manager.sliceQuery(ClusteredEntityWithCounter.class).partitionComponents(partitionKey).iterator();
+  assertThat(iter.hasNext()).isTrue();
+  ClusteredEntityWithCounter next=iter.next();
+  assertThat(next.getId().getId()).isEqualTo(partitionKey);
+  assertThat(next.getId().getName()).isEqualTo("name1");
+  assertThat(next.getCounter().get()).isEqualTo(1L);
+  assertThat(next.getVersion().get()).isEqualTo(1L);
+  assertThat(iter.hasNext()).isTrue();
+  assertThat(iter.hasNext()).isTrue();
+  next=iter.next();
+  assertThat(next.getId().getId()).isEqualTo(partitionKey);
+  assertThat(next.getId().getName()).isEqualTo("name2");
+  assertThat(next.getCounter().get()).isEqualTo(2L);
+  assertThat(next.getVersion().get()).isEqualTo(2L);
+  assertThat(iter.hasNext()).isTrue();
+  next=iter.next();
+  assertThat(next.getId().getId()).isEqualTo(partitionKey);
+  assertThat(next.getId().getName()).isEqualTo("name3");
+  assertThat(next.getCounter().get()).isEqualTo(3L);
+  assertThat(next.getVersion().get()).isEqualTo(3L);
+  assertThat(iter.hasNext()).isTrue();
+  next=iter.next();
+  assertThat(next.getId().getId()).isEqualTo(partitionKey);
+  assertThat(next.getId().getName()).isEqualTo("name4");
+  assertThat(next.getCounter().get()).isEqualTo(4L);
+  assertThat(next.getVersion().get()).isEqualTo(4L);
+  assertThat(iter.hasNext()).isTrue();
+  next=iter.next();
+  assertThat(next.getId().getId()).isEqualTo(partitionKey);
+  assertThat(next.getId().getName()).isEqualTo("name5");
+  assertThat(next.getCounter().get()).isEqualTo(5L);
+  assertThat(next.getVersion().get()).isEqualTo(5L);
+  assertThat(iter.hasNext()).isFalse();
+}

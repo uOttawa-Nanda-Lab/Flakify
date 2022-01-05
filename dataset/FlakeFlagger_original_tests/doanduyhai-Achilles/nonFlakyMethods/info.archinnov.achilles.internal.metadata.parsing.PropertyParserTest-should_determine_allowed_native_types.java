@@ -1,0 +1,23 @@
+@Test public void should_determine_allowed_native_types() throws Exception {
+  assertThat(isSupportedNativeType(byte.class)).isTrue();
+  assertThat(isSupportedNativeType(Byte.class)).isTrue();
+  assertThat(isSupportedNativeType(byte[].class)).isTrue();
+  assertThat(isSupportedNativeType(ByteBuffer.class)).isTrue();
+  assertThat(isSupportedNativeType(Boolean.class)).isTrue();
+  assertThat(isSupportedNativeType(boolean.class)).isTrue();
+  assertThat(isSupportedNativeType(Date.class)).isTrue();
+  assertThat(isSupportedNativeType(Double.class)).isTrue();
+  assertThat(isSupportedNativeType(double.class)).isTrue();
+  assertThat(isSupportedNativeType(BigDecimal.class)).isTrue();
+  assertThat(isSupportedNativeType(Float.class)).isTrue();
+  assertThat(isSupportedNativeType(float.class)).isTrue();
+  assertThat(isSupportedNativeType(InetAddress.class)).isTrue();
+  assertThat(isSupportedNativeType(BigInteger.class)).isTrue();
+  assertThat(isSupportedNativeType(Integer.class)).isTrue();
+  assertThat(isSupportedNativeType(int.class)).isTrue();
+  assertThat(isSupportedNativeType(Long.class)).isTrue();
+  assertThat(isSupportedNativeType(long.class)).isTrue();
+  assertThat(isSupportedNativeType(String.class)).isTrue();
+  assertThat(isSupportedNativeType(UUID.class)).isTrue();
+  assertThat(isSupportedNativeType(Object.class)).isFalse();
+}

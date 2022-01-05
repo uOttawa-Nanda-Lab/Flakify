@@ -1,0 +1,34 @@
+public void testScanner_StopRow1542() throws IOException {
+  byte[] tableName=Bytes.toBytes("test_table");
+  byte[] family=Bytes.toBytes("testFamily");
+  initHRegion(tableName,getName(),family);
+  byte[] row1=Bytes.toBytes("row111");
+  byte[] row2=Bytes.toBytes("row222");
+  byte[] row3=Bytes.toBytes("row333");
+  byte[] row4=Bytes.toBytes("row444");
+  byte[] row5=Bytes.toBytes("row555");
+  byte[] col1=Bytes.toBytes("Pub111");
+  byte[] col2=Bytes.toBytes("Pub222");
+  Put put=new Put(row1);
+  put.add(family,col1,Bytes.toBytes(10L));
+  region.put(put);
+  put=new Put(row2);
+  put.add(family,col1,Bytes.toBytes(15L));
+  region.put(put);
+  put=new Put(row3);
+  put.add(family,col2,Bytes.toBytes(20L));
+  region.put(put);
+  put=new Put(row4);
+  put.add(family,col2,Bytes.toBytes(30L));
+  region.put(put);
+  put=new Put(row5);
+  put.add(family,col1,Bytes.toBytes(40L));
+  region.put(put);
+  Scan scan=new Scan(row3,row4);
+  scan.setMaxVersions();
+  scan.addColumn(family,col1);
+  InternalScanner s=region.getScanner(scan);
+  List<KeyValue> results=new ArrayList<KeyValue>();
+  assertEquals(false,s.next(results));
+  assertEquals(0,results.size());
+}

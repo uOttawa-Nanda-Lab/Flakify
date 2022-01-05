@@ -1,0 +1,33 @@
+@Test public void testGetFields(){
+  UriInfo uriInfo=createMock(UriInfo.class);
+  MultivaluedMap<String,String> mapQueryParams=createMock(MultivaluedMap.class);
+  String fields="prop,category/prop1,category2/category3/prop2[1,2,3],prop3[4,5,6],category4[7,8,9],sub-resource/*[10,11,12],finalProp";
+  expect(uriInfo.getQueryParameters()).andReturn(mapQueryParams);
+  expect(mapQueryParams.getFirst("fields")).andReturn(fields);
+  replay(uriInfo,mapQueryParams);
+  Request request=new TestRequest(null,null,uriInfo,Request.Type.GET,null,null);
+  Map<String,TemporalInfo> mapFields=request.getFields();
+  assertEquals(7,mapFields.size());
+  String prop="prop";
+  assertTrue(mapFields.containsKey(prop));
+  assertNull(mapFields.get(prop));
+  String prop1=PropertyHelper.getPropertyId("category","prop1");
+  assertTrue(mapFields.containsKey(prop1));
+  assertNull(mapFields.get(prop1));
+  String prop2=PropertyHelper.getPropertyId("category2/category3","prop2");
+  assertTrue(mapFields.containsKey(prop2));
+  assertEquals(new TemporalInfoImpl(1,2,3),mapFields.get(prop2));
+  String prop3="prop3";
+  assertTrue(mapFields.containsKey(prop3));
+  assertEquals(new TemporalInfoImpl(4,5,6),mapFields.get(prop3));
+  String category4="category4";
+  assertTrue(mapFields.containsKey(category4));
+  assertEquals(new TemporalInfoImpl(7,8,9),mapFields.get(category4));
+  String subResource=PropertyHelper.getPropertyId("sub-resource","*");
+  assertTrue(mapFields.containsKey(subResource));
+  assertEquals(new TemporalInfoImpl(10,11,12),mapFields.get(subResource));
+  String finalProp="finalProp";
+  assertTrue(mapFields.containsKey(finalProp));
+  assertNull(mapFields.get(finalProp));
+  verify(uriInfo,mapQueryParams);
+}

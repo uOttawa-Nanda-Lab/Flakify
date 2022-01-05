@@ -1,0 +1,30 @@
+@Test public void should_generate_where_clause_when_more_components_for_start_descending() throws Exception {
+  when(sliceQuery.getOrdering()).thenReturn(DESCENDING);
+  when(sliceQuery.getFixedComponents()).thenReturn(Arrays.<Object>asList(11L,uuid1,"author"));
+  when(sliceQuery.getLastStartComponent()).thenReturn(2);
+  when(sliceQuery.getLastEndComponent()).thenReturn(null);
+  when(sliceQuery.getBounding()).thenReturn(INCLUSIVE_BOUNDS);
+  when(sliceQuery.getBatchSize()).thenReturn(99);
+  when(sliceQuery.getConsistencyLevel()).thenReturn(EACH_QUORUM);
+  RegularStatementWrapper statement=generator.generateWhereClauseForSelectSliceQuery(sliceQuery,buildFakeSelect());
+  assertThat(statement.getStatement().getQueryString()).isEqualTo("SELECT test FROM table WHERE id=11 AND a=? AND b=? AND c<=2;");
+  assertThat(statement.getValues()).contains(uuid1,"author");
+  assertThat(statement.getStatement().getFetchSize()).isEqualTo(99);
+  when(sliceQuery.getBounding()).thenReturn(EXCLUSIVE_BOUNDS);
+  statement=generator.generateWhereClauseForSelectSliceQuery(sliceQuery,buildFakeSelect());
+  assertThat(statement.getStatement().getQueryString()).isEqualTo("SELECT test FROM table WHERE id=11 AND a=? AND b=? AND c<2;");
+  assertThat(statement.getValues()).contains(uuid1,"author");
+  assertThat(statement.getStatement().getFetchSize()).isEqualTo(99);
+  when(sliceQuery.getBounding()).thenReturn(INCLUSIVE_START_BOUND_ONLY);
+  statement=generator.generateWhereClauseForSelectSliceQuery(sliceQuery,buildFakeSelect());
+  assertThat(statement.getStatement().getQueryString()).isEqualTo("SELECT test FROM table WHERE id=11 AND a=? AND b=? AND c<=2;");
+  assertThat(statement.getValues()).contains(uuid1,"author");
+  assertThat(statement.getStatement().getFetchSize()).isEqualTo(99);
+  when(sliceQuery.getBounding()).thenReturn(INCLUSIVE_END_BOUND_ONLY);
+  statement=generator.generateWhereClauseForSelectSliceQuery(sliceQuery,buildFakeSelect());
+  assertThat(statement.getStatement().getQueryString()).isEqualTo("SELECT test FROM table WHERE id=11 AND a=? AND b=? AND c<2;");
+  assertThat(statement.getValues()).contains(uuid1,"author");
+  assertThat(statement.getStatement().getFetchSize()).isEqualTo(99);
+  assertThat(statement.getStatement().getConsistencyLevel()).isEqualTo(EACH_QUORUM);
+  assertThat(statement.getStatement().getSerialConsistencyLevel()).isNull();
+}

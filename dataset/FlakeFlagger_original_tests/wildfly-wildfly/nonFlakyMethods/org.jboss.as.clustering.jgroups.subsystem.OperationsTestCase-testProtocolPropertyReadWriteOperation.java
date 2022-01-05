@@ -1,0 +1,37 @@
+@Test public void testProtocolPropertyReadWriteOperation() throws Exception {
+  KernelServices services=this.buildKernelServices();
+  ModelNode result=services.executeOperation(getProtocolGetPropertyOperation("maximal","MPING","name"));
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  Assert.assertEquals("value",ExpressionResolver.TEST_RESOLVER.resolveExpressions(result.get(RESULT)).asString());
+  result=services.executeOperation(getProtocolPutPropertyOperation("maximal","MPING","name","new-value"));
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  result=services.executeOperation(getProtocolGetPropertyOperation("maximal","MPING","name"));
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  Assert.assertEquals("new-value",result.get(RESULT).asString());
+  result=services.executeOperation(getProtocolRemovePropertyOperation("maximal","MPING","name"));
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  result=services.executeOperation(getProtocolGetPropertyOperation("maximal","MPING","name"));
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  Assert.assertFalse(result.get(RESULT).isDefined());
+  result=services.executeOperation(getProtocolPropertyAddOperation("maximal","MPING","async_discovery","false"));
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  result=services.executeOperation(getProtocolPropertyReadOperation("maximal","MPING","async_discovery"));
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  Assert.assertEquals("false",result.get(RESULT).asString());
+  result=services.executeOperation(getProtocolGetPropertyOperation("maximal","MPING","async_discovery"));
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  Assert.assertEquals("false",result.get(RESULT).asString());
+  result=services.executeOperation(getProtocolPropertyWriteOperation("maximal","MPING","async_discovery","true"));
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  result=services.executeOperation(getProtocolPropertyReadOperation("maximal","MPING","async_discovery"));
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  Assert.assertEquals("true",result.get(RESULT).asString());
+  result=services.executeOperation(getProtocolGetPropertyOperation("maximal","MPING","async_discovery"));
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  Assert.assertEquals("true",result.get(RESULT).asString());
+  result=services.executeOperation(getProtocolPropertyRemoveOperation("maximal","MPING","async_discovery"));
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  result=services.executeOperation(getProtocolGetPropertyOperation("maximal","MPING","async_discovery"));
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  Assert.assertFalse(result.get(RESULT).isDefined());
+}

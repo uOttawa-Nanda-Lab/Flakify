@@ -1,0 +1,34 @@
+@Test public void should_query_with_default_params() throws Exception {
+  long partitionKey=RandomUtils.nextLong();
+  List<ClusteredEntityWithReverseClustering> entities=manager.sliceQuery(ClusteredEntityWithReverseClustering.class).partitionComponents(partitionKey).getFirst(5);
+  assertThat(entities).isEmpty();
+  insertValues(partitionKey,5);
+  entities=manager.sliceQuery(ClusteredEntityWithReverseClustering.class).partitionComponents(partitionKey).fromClusterings(4).toClusterings(2).get();
+  assertThat(entities).hasSize(3);
+  assertThat(entities.get(0).getValue()).isEqualTo("value4");
+  assertThat(entities.get(0).getId().getId()).isEqualTo(partitionKey);
+  assertThat(entities.get(0).getId().getCount()).isEqualTo(4);
+  assertThat(entities.get(0).getId().getName()).isEqualTo("name4");
+  assertThat(entities.get(1).getValue()).isEqualTo("value3");
+  assertThat(entities.get(1).getId().getId()).isEqualTo(partitionKey);
+  assertThat(entities.get(1).getId().getCount()).isEqualTo(3);
+  assertThat(entities.get(1).getId().getName()).isEqualTo("name3");
+  assertThat(entities.get(2).getValue()).isEqualTo("value2");
+  assertThat(entities.get(2).getId().getId()).isEqualTo(partitionKey);
+  assertThat(entities.get(2).getId().getCount()).isEqualTo(2);
+  assertThat(entities.get(2).getId().getName()).isEqualTo("name2");
+  entities=manager.sliceQuery(ClusteredEntityWithReverseClustering.class).fromEmbeddedId(new ClusteredKey(partitionKey,4,null)).toEmbeddedId(new ClusteredKey(partitionKey,2,null)).get();
+  assertThat(entities).hasSize(3);
+  assertThat(entities.get(0).getValue()).isEqualTo("value4");
+  assertThat(entities.get(0).getId().getId()).isEqualTo(partitionKey);
+  assertThat(entities.get(0).getId().getCount()).isEqualTo(4);
+  assertThat(entities.get(0).getId().getName()).isEqualTo("name4");
+  assertThat(entities.get(1).getValue()).isEqualTo("value3");
+  assertThat(entities.get(1).getId().getId()).isEqualTo(partitionKey);
+  assertThat(entities.get(1).getId().getCount()).isEqualTo(3);
+  assertThat(entities.get(1).getId().getName()).isEqualTo("name3");
+  assertThat(entities.get(2).getValue()).isEqualTo("value2");
+  assertThat(entities.get(2).getId().getId()).isEqualTo(partitionKey);
+  assertThat(entities.get(2).getId().getCount()).isEqualTo(2);
+  assertThat(entities.get(2).getId().getName()).isEqualTo("name2");
+}

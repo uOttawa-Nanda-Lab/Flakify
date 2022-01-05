@@ -1,0 +1,31 @@
+/** 
+ * Test for a failed authentication where a bad username is provided.
+ */
+@Test public void testBadUsername() throws Exception {
+  setAuthenticationChain();
+  TestHttpClient client=new TestHttpClient();
+  HttpGet get=new HttpGet(DefaultServer.getDefaultServerURL());
+  HttpResponse result=client.execute(get);
+  assertEquals(401,result.getStatusLine().getStatusCode());
+  Header[] values=result.getHeaders(WWW_AUTHENTICATE.toString());
+  assertEquals(1,values.length);
+  String value=values[0].getValue();
+  assertTrue(value.startsWith(DIGEST.toString()));
+  Map<DigestWWWAuthenticateToken,String> parsedHeader=DigestWWWAuthenticateToken.parseHeader(value.substring(7));
+  assertEquals(REALM_NAME,parsedHeader.get(DigestWWWAuthenticateToken.REALM));
+  assertEquals(DigestAlgorithm.MD5.getToken(),parsedHeader.get(DigestWWWAuthenticateToken.ALGORITHM));
+  assertEquals(DigestQop.AUTH.getToken(),parsedHeader.get(DigestWWWAuthenticateToken.MESSAGE_QOP));
+  String clientNonce=createNonce();
+  int nonceCount=1;
+  String nonce=parsedHeader.get(DigestWWWAuthenticateToken.NONCE);
+  String opaque=parsedHeader.get(DigestWWWAuthenticateToken.OPAQUE);
+  assertNotNull(opaque);
+  client=new TestHttpClient();
+  get=new HttpGet(DefaultServer.getDefaultServerURL());
+  int thisNonceCount=nonceCount++;
+  String authorization=createAuthorizationLine("noUser","passwordOne","GET","/",nonce,thisNonceCount,clientNonce,opaque);
+  get.addHeader(AUTHORIZATION.toString(),authorization);
+  result=client.execute(get);
+  assertEquals(401,result.getStatusLine().getStatusCode());
+  assertSingleNotificationType(EventType.FAILED_AUTHENTICATION);
+}

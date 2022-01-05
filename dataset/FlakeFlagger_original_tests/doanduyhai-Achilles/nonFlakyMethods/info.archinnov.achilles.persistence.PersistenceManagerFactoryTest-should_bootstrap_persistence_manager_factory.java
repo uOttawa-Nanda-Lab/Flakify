@@ -1,0 +1,37 @@
+@Test public void should_bootstrap_persistence_manager_factory() throws Exception {
+  List<Class<?>> candidateClasses=Arrays.asList();
+  List<Interceptor<?>> interceptors=Arrays.asList();
+  Map<Class<?>,EntityMeta> entityMetaMap=ImmutableMap.<Class<?>,EntityMeta>of(CompleteBean.class,new EntityMeta());
+  ParsingResult parsingResult=new ParsingResult(entityMetaMap,true);
+  final ClassLoader classLoader=this.getClass().getClassLoader();
+  when(argumentExtractor.initConfigContext(configMap)).thenReturn(configContext);
+  when(argumentExtractor.initSession(cluster,configMap)).thenReturn(session);
+  when(argumentExtractor.initInterceptors(configMap)).thenReturn(interceptors);
+  when(argumentExtractor.initProxyWarmUp(configMap)).thenReturn(true);
+  when(argumentExtractor.initOSGIClassLoader(configMap)).thenReturn(classLoader);
+  when(argumentExtractor.initEntities(configMap,classLoader)).thenReturn(candidateClasses);
+  when(configMap.getTyped(ENTITY_PACKAGES)).thenReturn("packages");
+  when(configMap.getTyped(KEYSPACE_NAME)).thenReturn("keyspace");
+  when(boostrapper.buildMetaDatas(configContext,candidateClasses)).thenReturn(parsingResult);
+  when(configContext.isForceColumnFamilyCreation()).thenReturn(true);
+  when(boostrapper.buildDaoContext(session,parsingResult,configContext)).thenReturn(daoContext);
+  pmf.bootstrap();
+  assertThat(pmf.entityMetaMap).isSameAs(entityMetaMap);
+  assertThat(pmf.configContext).isSameAs(configContext);
+  assertThat(pmf.daoContext).isSameAs(daoContext);
+  PersistenceContextFactory contextFactory=Whitebox.getInternalState(pmf,PersistenceContextFactory.class);
+  assertThat(Whitebox.getInternalState(contextFactory,DaoContext.class)).isSameAs(daoContext);
+  assertThat(Whitebox.getInternalState(contextFactory,ConfigurationContext.class)).isSameAs(configContext);
+  assertThat(Whitebox.getInternalState(contextFactory,"entityMetaMap")).isSameAs(entityMetaMap);
+  verify(boostrapper).buildMetaDatas(configContext,candidateClasses);
+  verify(boostrapper).validateOrCreateTables(contextCaptor.capture());
+  verify(boostrapper).addInterceptorsToEntityMetas(interceptors,entityMetaMap);
+  verify(proxyClassFactory).createProxyClass(CompleteBean.class,configContext);
+  SchemaContext schemaContext=contextCaptor.getValue();
+  assertThat(Whitebox.getInternalState(schemaContext,Cluster.class)).isSameAs(cluster);
+  assertThat(Whitebox.getInternalState(schemaContext,Session.class)).isSameAs(session);
+  assertThat(Whitebox.getInternalState(schemaContext,"entityMetaMap")).isSameAs(entityMetaMap);
+  assertThat(Whitebox.getInternalState(schemaContext,"keyspaceName")).isEqualTo("keyspace");
+  assertThat((Boolean)Whitebox.getInternalState(schemaContext,"forceColumnFamilyCreation")).isTrue();
+  assertThat((Boolean)Whitebox.getInternalState(schemaContext,"hasCounter")).isTrue();
+}

@@ -1,0 +1,35 @@
+@Test public void testScheduledTimezoneDifferentThanCurrentSystem(){
+  ScheduleExpression sch=new ScheduleExpression();
+  sch.timezone("America/New_York");
+  sch.dayOfMonth("*");
+  sch.dayOfWeek("*");
+  sch.month("*");
+  sch.hour("2");
+  sch.minute("*");
+  sch.second("0");
+  sch.year("*");
+  CalendarBasedTimeout calendarTimeout=new CalendarBasedTimeout(sch);
+  Calendar firstTimeout=calendarTimeout.getFirstTimeout();
+  Assert.assertNotNull("first timeout is null",firstTimeout);
+  logger.info("First timeout is " + firstTimeout.getTime());
+  TimeZone currentTimezone=TimeZone.getTimeZone("America/Chicago");
+  Calendar currentCal=new GregorianCalendar(currentTimezone);
+  currentCal.set(Calendar.YEAR,2014);
+  currentCal.set(Calendar.MONTH,1);
+  currentCal.set(Calendar.DATE,8);
+  currentCal.set(Calendar.HOUR_OF_DAY,1);
+  currentCal.set(Calendar.MINUTE,1);
+  currentCal.set(Calendar.SECOND,1);
+  currentCal.set(Calendar.MILLISECOND,0);
+  Calendar nextTimeout=calendarTimeout.getNextTimeout(currentCal);
+  logger.info("Next timeout is " + nextTimeout.getTime());
+  Calendar expectedCal=new GregorianCalendar(currentTimezone);
+  expectedCal.set(Calendar.YEAR,2014);
+  expectedCal.set(Calendar.MONTH,1);
+  expectedCal.set(Calendar.DATE,8);
+  expectedCal.set(Calendar.HOUR_OF_DAY,1);
+  expectedCal.set(Calendar.MINUTE,2);
+  expectedCal.set(Calendar.SECOND,0);
+  expectedCal.set(Calendar.MILLISECOND,0);
+  Assert.assertEquals("[WFLY-2840] Next timeout should be: " + expectedCal.getTime(),expectedCal.getTime(),nextTimeout.getTime());
+}

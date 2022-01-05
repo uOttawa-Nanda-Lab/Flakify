@@ -1,0 +1,62 @@
+/** 
+ * Check create, update and delete events for a task.
+ */
+@Deployment(resources={"org/activiti/engine/test/api/runtime/oneTaskProcess.bpmn20.xml"}) public void testTaskEventsInProcess() throws Exception {
+  ProcessInstance processInstance=runtimeService.startProcessInstanceByKey("oneTaskProcess");
+  assertNotNull(processInstance);
+  Task task=taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
+  assertNotNull(task);
+  assertEquals(3,listener.getEventsReceived().size());
+  ActivitiEntityEvent event=(ActivitiEntityEvent)listener.getEventsReceived().get(0);
+  assertEquals(ActivitiEventType.ENTITY_CREATED,event.getType());
+  assertTrue(event.getEntity() instanceof Task);
+  Task taskFromEvent=(Task)event.getEntity();
+  assertEquals(task.getId(),taskFromEvent.getId());
+  assertExecutionDetails(event,processInstance);
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(1);
+  assertEquals(ActivitiEventType.ENTITY_INITIALIZED,event.getType());
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(2);
+  assertEquals(ActivitiEventType.TASK_CREATED,event.getType());
+  assertTrue(event.getEntity() instanceof Task);
+  taskFromEvent=(Task)event.getEntity();
+  assertEquals(task.getId(),taskFromEvent.getId());
+  assertExecutionDetails(event,processInstance);
+  listener.clearEventsReceived();
+  taskService.setDueDate(task.getId(),new Date());
+  assertEquals(1,listener.getEventsReceived().size());
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(0);
+  assertExecutionDetails(event,processInstance);
+  assertEquals(ActivitiEventType.ENTITY_UPDATED,event.getType());
+  listener.clearEventsReceived();
+  taskService.setPriority(task.getId(),12);
+  assertEquals(1,listener.getEventsReceived().size());
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(0);
+  assertEquals(ActivitiEventType.ENTITY_UPDATED,event.getType());
+  assertExecutionDetails(event,processInstance);
+  listener.clearEventsReceived();
+  taskService.setOwner(task.getId(),"kermit");
+  assertEquals(1,listener.getEventsReceived().size());
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(0);
+  assertEquals(ActivitiEventType.ENTITY_UPDATED,event.getType());
+  assertExecutionDetails(event,processInstance);
+  listener.clearEventsReceived();
+  task=taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
+  task.setDueDate(new Date());
+  task.setOwner("john");
+  taskService.saveTask(task);
+  assertEquals(1,listener.getEventsReceived().size());
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(0);
+  assertEquals(ActivitiEventType.ENTITY_UPDATED,event.getType());
+  assertExecutionDetails(event,processInstance);
+  listener.clearEventsReceived();
+  taskService.complete(task.getId());
+  assertEquals(2,listener.getEventsReceived().size());
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(0);
+  assertEquals(ActivitiEventType.TASK_COMPLETED,event.getType());
+  assertExecutionDetails(event,processInstance);
+  TaskEntity taskEntity=(TaskEntity)event.getEntity();
+  assertNotNull(taskEntity.getDueDate());
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(1);
+  assertEquals(ActivitiEventType.ENTITY_DELETED,event.getType());
+  assertExecutionDetails(event,processInstance);
+}

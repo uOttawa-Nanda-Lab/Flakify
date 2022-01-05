@@ -1,0 +1,33 @@
+public void testQuerySorting(){
+  assertEquals(1,managementService.createJobQuery().orderByJobId().asc().count());
+  assertEquals(1,managementService.createJobQuery().orderByJobDuedate().asc().count());
+  assertEquals(1,managementService.createJobQuery().orderByExecutionId().asc().count());
+  assertEquals(1,managementService.createJobQuery().orderByProcessInstanceId().asc().count());
+  assertEquals(1,managementService.createJobQuery().orderByJobRetries().asc().count());
+  assertEquals(3,managementService.createTimerJobQuery().orderByJobId().asc().count());
+  assertEquals(3,managementService.createTimerJobQuery().orderByJobDuedate().asc().count());
+  assertEquals(3,managementService.createTimerJobQuery().orderByExecutionId().asc().count());
+  assertEquals(3,managementService.createTimerJobQuery().orderByProcessInstanceId().asc().count());
+  assertEquals(3,managementService.createTimerJobQuery().orderByJobRetries().asc().count());
+  assertEquals(1,managementService.createJobQuery().orderByJobId().desc().count());
+  assertEquals(1,managementService.createJobQuery().orderByJobDuedate().desc().count());
+  assertEquals(1,managementService.createJobQuery().orderByExecutionId().desc().count());
+  assertEquals(1,managementService.createJobQuery().orderByProcessInstanceId().desc().count());
+  assertEquals(1,managementService.createJobQuery().orderByJobRetries().desc().count());
+  assertEquals(3,managementService.createTimerJobQuery().orderByJobId().desc().count());
+  assertEquals(3,managementService.createTimerJobQuery().orderByJobDuedate().desc().count());
+  assertEquals(3,managementService.createTimerJobQuery().orderByExecutionId().desc().count());
+  assertEquals(3,managementService.createTimerJobQuery().orderByProcessInstanceId().desc().count());
+  assertEquals(3,managementService.createTimerJobQuery().orderByJobRetries().desc().count());
+  setRetries(processInstanceIdTwo,2);
+  processEngineConfiguration.getClock().setCurrentTime(new Date(timerThreeFireTime.getTime() + ONE_SECOND));
+  TimerJobQuery query=managementService.createTimerJobQuery().timers().executable().orderByJobRetries().asc().orderByJobDuedate().desc();
+  List<Job> jobs=query.list();
+  assertEquals(3,jobs.size());
+  assertEquals(2,jobs.get(0).getRetries());
+  assertEquals(3,jobs.get(1).getRetries());
+  assertEquals(3,jobs.get(2).getRetries());
+  assertEquals(processInstanceIdTwo,jobs.get(0).getProcessInstanceId());
+  assertEquals(processInstanceIdThree,jobs.get(1).getProcessInstanceId());
+  assertEquals(processInstanceIdOne,jobs.get(2).getProcessInstanceId());
+}

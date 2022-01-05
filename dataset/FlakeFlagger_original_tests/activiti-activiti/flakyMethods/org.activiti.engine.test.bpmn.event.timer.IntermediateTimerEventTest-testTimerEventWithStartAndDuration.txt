@@ -1,0 +1,33 @@
+@Deployment public void testTimerEventWithStartAndDuration() throws Exception {
+  Calendar testStartCal=new GregorianCalendar(2016,0,1,10,0,0);
+  Date testStartTime=testStartCal.getTime();
+  processEngineConfiguration.getClock().setCurrentTime(testStartTime);
+  ProcessInstance pi=runtimeService.startProcessInstanceByKey("timerEventWithStartAndDuration");
+  List<Task> tasks=taskService.createTaskQuery().list();
+  assertEquals(1,tasks.size());
+  Task task=tasks.get(0);
+  assertEquals("Task A",task.getName());
+  TimerJobQuery jobQuery=managementService.createTimerJobQuery().processInstanceId(pi.getId());
+  assertEquals(0,jobQuery.count());
+  Date startDate=new Date();
+  runtimeService.setVariable(pi.getId(),"StartDate",startDate);
+  taskService.complete(task.getId());
+  jobQuery=managementService.createTimerJobQuery().processInstanceId(pi.getId());
+  assertEquals(1,jobQuery.count());
+  processEngineConfiguration.getClock().setCurrentTime(new Date(startDate.getTime() + 7000L));
+  jobQuery=managementService.createTimerJobQuery().processInstanceId(pi.getId());
+  assertEquals(1,jobQuery.count());
+  jobQuery=managementService.createTimerJobQuery().processInstanceId(pi.getId()).executable();
+  assertEquals(0,jobQuery.count());
+  processEngineConfiguration.getClock().setCurrentTime(new Date(startDate.getTime() + 11000L));
+  waitForJobExecutorToProcessAllJobs(15000L,25L);
+  jobQuery=managementService.createTimerJobQuery().processInstanceId(pi.getId());
+  assertEquals(0,jobQuery.count());
+  tasks=taskService.createTaskQuery().list();
+  assertEquals(1,tasks.size());
+  task=tasks.get(0);
+  assertEquals("Task B",task.getName());
+  taskService.complete(task.getId());
+  assertProcessEnded(pi.getProcessInstanceId());
+  processEngineConfiguration.getClock().reset();
+}

@@ -1,0 +1,3 @@
+@Test public void addComplexResourceAdapterWithSecurityDomainAndApp_SecurityDomainRecovery() throws Exception {
+  complexResourceAdapterAddTest(ConnectionSecurityType.SECURITY_DOMAIN_AND_APPLICATION,ConnectionSecurityType.SECURITY_DOMAIN);
+}

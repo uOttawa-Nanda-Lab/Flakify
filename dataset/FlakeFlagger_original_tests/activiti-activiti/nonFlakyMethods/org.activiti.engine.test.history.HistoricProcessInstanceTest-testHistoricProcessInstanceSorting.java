@@ -1,0 +1,70 @@
+@Deployment(resources={"org/activiti/engine/test/history/oneTaskProcess.bpmn20.xml"}) public void testHistoricProcessInstanceSorting(){
+  ProcessInstance processInstance1=runtimeService.startProcessInstanceByKey("oneTaskProcess");
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceId().asc().list().size());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceStartTime().asc().list().size());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceEndTime().asc().list().size());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceDuration().asc().list().size());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessDefinitionId().asc().list().size());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceBusinessKey().asc().list().size());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceId().desc().list().size());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceStartTime().desc().list().size());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceEndTime().desc().list().size());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceDuration().desc().list().size());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessDefinitionId().desc().list().size());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceBusinessKey().desc().list().size());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceId().asc().count());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceStartTime().asc().count());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceEndTime().asc().count());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceDuration().asc().count());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessDefinitionId().asc().count());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceBusinessKey().asc().count());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceId().desc().count());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceStartTime().desc().count());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceEndTime().desc().count());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceDuration().desc().count());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessDefinitionId().desc().count());
+  assertEquals(1,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceBusinessKey().desc().count());
+  ProcessInstance processInstance2=runtimeService.startProcessInstanceByKey("oneTaskProcess");
+  for (  Task task : taskService.createTaskQuery().processInstanceId(processInstance2.getId()).list()) {
+    taskService.complete(task.getId());
+  }
+  for (  Task task : taskService.createTaskQuery().processInstanceId(processInstance1.getId()).list()) {
+    taskService.complete(task.getId());
+  }
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceId().asc().list().size());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceStartTime().asc().list().size());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceEndTime().asc().list().size());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceDuration().asc().list().size());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessDefinitionId().asc().list().size());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceBusinessKey().asc().list().size());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceId().desc().list().size());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceStartTime().desc().list().size());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceEndTime().desc().list().size());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceDuration().desc().list().size());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessDefinitionId().desc().list().size());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceBusinessKey().desc().list().size());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceId().asc().count());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceStartTime().asc().count());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceEndTime().asc().count());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceDuration().asc().count());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessDefinitionId().asc().count());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceBusinessKey().asc().count());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceId().desc().count());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceStartTime().desc().count());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceEndTime().desc().count());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceDuration().desc().count());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessDefinitionId().desc().count());
+  assertEquals(2,historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceBusinessKey().desc().count());
+  List<HistoricProcessInstance> historicProcessInstances=historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceEndTime().desc().list();
+  List<String> processInstanceIds=new ArrayList<String>(2);
+  processInstanceIds.add(historicProcessInstances.get(0).getId());
+  processInstanceIds.add(historicProcessInstances.get(1).getId());
+  assertTrue(processInstanceIds.contains(processInstance1.getId()));
+  assertTrue(processInstanceIds.contains(processInstance2.getId()));
+  historicProcessInstances=historyService.createHistoricProcessInstanceQuery().orderByProcessInstanceEndTime().desc().includeProcessVariables().list();
+  processInstanceIds=new ArrayList<String>(2);
+  processInstanceIds.add(historicProcessInstances.get(0).getId());
+  processInstanceIds.add(historicProcessInstances.get(1).getId());
+  assertTrue(processInstanceIds.contains(processInstance1.getId()));
+  assertTrue(processInstanceIds.contains(processInstance2.getId()));
+}

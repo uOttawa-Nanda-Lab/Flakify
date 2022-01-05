@@ -1,0 +1,12 @@
+@Test public void should_fail_if_actual_does_not_contain_values_according_to_custom_comparison_strategy(){
+  AssertionInfo info=someInfo();
+  float[] expected={6f,-8f,9f};
+  try {
+    arraysWithCustomComparisonStrategy.assertContains(info,actual,expected);
+  }
+ catch (  AssertionError e) {
+    verify(failures).failure(info,shouldContain(actual,expected,newLinkedHashSet(9f),absValueComparisonStrategy));
+    return;
+  }
+  failBecauseExpectedAssertionErrorWasNotThrown();
+}

@@ -1,0 +1,30 @@
+@Deployment(resources={"org/activiti/engine/test/api/runtime/threeParallelTasks.bpmn20.xml"}) public void testInvolvements(){
+  assertNoInvolvement("user1");
+  assertNoInvolvement("user2");
+  assertNoInvolvement("user3");
+  assertNoInvolvement("user4");
+  String instanceId=startProcessAsUser("threeParallelTasks","user1");
+  List<Task> tasks=taskService.createTaskQuery().processInstanceId(instanceId).list();
+  assertEquals(3,tasks.size());
+  assertInvolvement("user1",instanceId);
+  assertNoInvolvement("user2");
+  taskService.claim(tasks.get(0).getId(),"user2");
+  assertInvolvement("user2",instanceId);
+  taskService.complete(tasks.get(0).getId());
+  assertInvolvement("user2",instanceId);
+  completeTaskAsUser(tasks.get(1).getId(),"user3");
+  assertInvolvement("user3",instanceId);
+  runtimeService.addUserIdentityLink(instanceId,"user4","custom");
+  assertInvolvement("user4",instanceId);
+  List<IdentityLink> identityLinks=runtimeService.getIdentityLinksForProcessInstance(instanceId);
+  assertTrue(containsIdentityLink(identityLinks,"user1","starter"));
+  assertTrue(containsIdentityLink(identityLinks,"user2","participant"));
+  assertTrue(containsIdentityLink(identityLinks,"user3","participant"));
+  assertTrue(containsIdentityLink(identityLinks,"user4","custom"));
+  assertEquals(4,identityLinks.size());
+  completeTaskAsUser(tasks.get(2).getId(),"user1");
+  assertNoInvolvement("user1");
+  assertNoInvolvement("user2");
+  assertNoInvolvement("user3");
+  assertNoInvolvement("user4");
+}

@@ -1,0 +1,31 @@
+@Test public void testSLParseSuccess() throws Exception {
+  StatusLine statusLine=BasicLineParser.parseStatusLine("HTTP/1.1 200 OK",null);
+  Assert.assertEquals("HTTP/1.1 200 OK",statusLine.toString());
+  Assert.assertEquals(HttpVersion.HTTP_1_1,statusLine.getProtocolVersion());
+  Assert.assertEquals(200,statusLine.getStatusCode());
+  Assert.assertEquals("OK",statusLine.getReasonPhrase());
+  statusLine=BasicLineParser.parseStatusLine("HTTP/1.1 404 Not Found",null);
+  Assert.assertEquals(404,statusLine.getStatusCode());
+  Assert.assertEquals("Not Found",statusLine.getReasonPhrase());
+  statusLine=BasicLineParser.parseStatusLine("HTTP/1.1 404 Non Trouve",null);
+  Assert.assertEquals("Non Trouve",statusLine.getReasonPhrase());
+  statusLine=BasicLineParser.parseStatusLine("HTTP/1.1 404 Not Found\r\n",null);
+  Assert.assertEquals("Not Found",statusLine.getReasonPhrase());
+  statusLine=BasicLineParser.parseStatusLine("HTTP/1.1 200 ",null);
+  Assert.assertEquals(200,statusLine.getStatusCode());
+  Assert.assertEquals("",statusLine.getReasonPhrase());
+  statusLine=BasicLineParser.parseStatusLine("HTTP/1.1 200",null);
+  Assert.assertEquals(200,statusLine.getStatusCode());
+  Assert.assertEquals("",statusLine.getReasonPhrase());
+  statusLine=BasicLineParser.parseStatusLine("HTTP/1.1     200 OK",null);
+  Assert.assertEquals(200,statusLine.getStatusCode());
+  Assert.assertEquals("OK",statusLine.getReasonPhrase());
+  statusLine=BasicLineParser.parseStatusLine("\rHTTP/1.1 200 OK",null);
+  Assert.assertEquals(200,statusLine.getStatusCode());
+  Assert.assertEquals("OK",statusLine.getReasonPhrase());
+  Assert.assertEquals(HttpVersion.HTTP_1_1,statusLine.getProtocolVersion());
+  statusLine=BasicLineParser.parseStatusLine("  HTTP/1.1 200 OK",null);
+  Assert.assertEquals(200,statusLine.getStatusCode());
+  Assert.assertEquals("OK",statusLine.getReasonPhrase());
+  Assert.assertEquals(HttpVersion.HTTP_1_1,statusLine.getProtocolVersion());
+}

@@ -1,0 +1,35 @@
+@Test public void testShutdown() throws Exception {
+  LocalRoutePool pool=new LocalRoutePool();
+  IOSession session1=Mockito.mock(IOSession.class);
+  SessionRequest sessionRequest1=Mockito.mock(SessionRequest.class);
+  Mockito.when(sessionRequest1.getSession()).thenReturn(session1);
+  BasicFuture<LocalPoolEntry> future1=new BasicFuture<LocalPoolEntry>(null);
+  pool.addPending(sessionRequest1,future1);
+  IOSession session2=Mockito.mock(IOSession.class);
+  SessionRequest sessionRequest2=Mockito.mock(SessionRequest.class);
+  Mockito.when(sessionRequest2.getSession()).thenReturn(session2);
+  BasicFuture<LocalPoolEntry> future2=new BasicFuture<LocalPoolEntry>(null);
+  pool.addPending(sessionRequest2,future2);
+  IOSession session3=Mockito.mock(IOSession.class);
+  SessionRequest sessionRequest3=Mockito.mock(SessionRequest.class);
+  Mockito.when(sessionRequest3.getSession()).thenReturn(session3);
+  BasicFuture<LocalPoolEntry> future3=new BasicFuture<LocalPoolEntry>(null);
+  pool.addPending(sessionRequest3,future3);
+  LocalPoolEntry entry1=pool.completed(sessionRequest1,session1);
+  Assert.assertNotNull(entry1);
+  LocalPoolEntry entry2=pool.completed(sessionRequest2,session2);
+  Assert.assertNotNull(entry2);
+  pool.free(entry1,true);
+  Assert.assertEquals(3,pool.getAllocatedCount());
+  Assert.assertEquals(1,pool.getAvailableCount());
+  Assert.assertEquals(1,pool.getLeasedCount());
+  Assert.assertEquals(1,pool.getPendingCount());
+  pool.shutdown();
+  Assert.assertEquals(0,pool.getAllocatedCount());
+  Assert.assertEquals(0,pool.getAvailableCount());
+  Assert.assertEquals(0,pool.getLeasedCount());
+  Assert.assertEquals(0,pool.getPendingCount());
+  Mockito.verify(sessionRequest3).cancel();
+  Mockito.verify(session2).close();
+  Mockito.verify(session1).close();
+}

@@ -1,0 +1,34 @@
+public void testScanTimeRange() throws IOException {
+  String r1="R1";
+  KeyValue[] kvs=new KeyValue[]{KeyValueTestUtil.create(r1,CF_STR,"a",1,KeyValue.Type.Put,"dont-care"),KeyValueTestUtil.create(r1,CF_STR,"a",2,KeyValue.Type.Put,"dont-care"),KeyValueTestUtil.create(r1,CF_STR,"a",3,KeyValue.Type.Put,"dont-care"),KeyValueTestUtil.create(r1,CF_STR,"a",4,KeyValue.Type.Put,"dont-care"),KeyValueTestUtil.create(r1,CF_STR,"a",5,KeyValue.Type.Put,"dont-care")};
+  KeyValueScanner[] scanners=new KeyValueScanner[]{new KeyValueScanFixture(KeyValue.COMPARATOR,kvs)};
+  Scan scanSpec=new Scan(Bytes.toBytes(r1));
+  scanSpec.setTimeRange(0,6);
+  scanSpec.setMaxVersions();
+  StoreScanner scan=new StoreScanner(scanSpec,CF,Long.MAX_VALUE,KeyValue.COMPARATOR,getCols("a"),scanners);
+  List<KeyValue> results=new ArrayList<KeyValue>();
+  assertEquals(true,scan.next(results));
+  assertEquals(5,results.size());
+  assertEquals(kvs[kvs.length - 1],results.get(0));
+  scanSpec=new Scan(Bytes.toBytes(r1));
+  scanSpec.setTimeRange(1,3);
+  scanSpec.setMaxVersions();
+  scan=new StoreScanner(scanSpec,CF,Long.MAX_VALUE,KeyValue.COMPARATOR,getCols("a"),scanners);
+  results=new ArrayList<KeyValue>();
+  assertEquals(true,scan.next(results));
+  assertEquals(2,results.size());
+  scanSpec=new Scan(Bytes.toBytes(r1));
+  scanSpec.setTimeRange(5,10);
+  scanSpec.setMaxVersions();
+  scan=new StoreScanner(scanSpec,CF,Long.MAX_VALUE,KeyValue.COMPARATOR,getCols("a"),scanners);
+  results=new ArrayList<KeyValue>();
+  assertEquals(true,scan.next(results));
+  assertEquals(1,results.size());
+  scanSpec=new Scan(Bytes.toBytes(r1));
+  scanSpec.setTimeRange(0,10);
+  scanSpec.setMaxVersions(3);
+  scan=new StoreScanner(scanSpec,CF,Long.MAX_VALUE,KeyValue.COMPARATOR,getCols("a"),scanners);
+  results=new ArrayList<KeyValue>();
+  assertEquals(true,scan.next(results));
+  assertEquals(3,results.size());
+}

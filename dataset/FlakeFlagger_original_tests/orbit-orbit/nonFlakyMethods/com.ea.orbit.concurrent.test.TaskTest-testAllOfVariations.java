@@ -1,0 +1,30 @@
+@Test public void testAllOfVariations(){
+  CTask<Integer> t1=new CTask();
+  CTask t2=new CTask();
+  CTask t3=new CTask();
+  CompletableFuture c4=new CompletableFuture();
+  Task all_regular=CTask.allOf(t1,t2,t3);
+  Task all_array=CTask.allOf(new CompletableFuture[]{t1,t2,t3});
+  Task all_array2=CTask.allOf(new CTask[]{t1,t2,t3});
+  Task all_collection=CTask.allOf(Arrays.asList(t1,t2,t3));
+  Task all_stream=CTask.allOf(Arrays.asList(t1,t2,t3).stream());
+  Stream<CTask> stream=Arrays.asList(t1,t2,t3).stream();
+  Task all_stream2=CTask.allOf(stream);
+  Task all_stream3=CTask.allOf(Arrays.asList(c4).stream());
+  Stream<CompletableFuture> stream4=Arrays.asList(t1,t2,t3,c4).stream();
+  Task all_stream4=Task.allOf(stream4);
+  Task all_stream5=Task.allOf(Arrays.asList(t1,t2,t3,c4).stream());
+  t1.complete(1);
+  t2.completeExceptionally(new RuntimeException());
+  t3.complete(3);
+  c4.complete(4);
+  assertTrue(all_regular.isDone());
+  assertTrue(all_array.isDone());
+  assertTrue(all_array2.isDone());
+  assertTrue(all_stream.isDone());
+  assertTrue(all_stream2.isDone());
+  assertTrue(all_stream3.isDone());
+  assertTrue(all_stream4.isDone());
+  assertTrue(all_stream5.isDone());
+  assertTrue(all_collection.isDone());
+}

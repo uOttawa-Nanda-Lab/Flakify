@@ -1,0 +1,53 @@
+public void testCacheEvictionThreePriorities() throws Exception {
+  long maxSize=100000;
+  long blockSize=calculateBlockSize(maxSize,10);
+  LruBlockCache cache=new LruBlockCache(maxSize,blockSize,false,(int)Math.ceil(1.2 * maxSize / blockSize),LruBlockCache.DEFAULT_LOAD_FACTOR,LruBlockCache.DEFAULT_CONCURRENCY_LEVEL,0.98f,0.99f,0.33f,0.33f,0.34f);
+  Block[] singleBlocks=generateFixedBlocks(5,blockSize,"single");
+  Block[] multiBlocks=generateFixedBlocks(5,blockSize,"multi");
+  Block[] memoryBlocks=generateFixedBlocks(5,blockSize,"memory");
+  long expectedCacheSize=cache.heapSize();
+  for (int i=0; i < 3; i++) {
+    cache.cacheBlock(singleBlocks[i].blockName,singleBlocks[i].buf);
+    expectedCacheSize+=singleBlocks[i].heapSize();
+    cache.cacheBlock(multiBlocks[i].blockName,multiBlocks[i].buf);
+    expectedCacheSize+=multiBlocks[i].heapSize();
+    cache.getBlock(multiBlocks[i].blockName);
+    cache.cacheBlock(memoryBlocks[i].blockName,memoryBlocks[i].buf,true);
+    expectedCacheSize+=memoryBlocks[i].heapSize();
+  }
+  assertEquals(0,cache.getEvictionCount());
+  assertEquals(expectedCacheSize,cache.heapSize());
+  cache.cacheBlock(singleBlocks[3].blockName,singleBlocks[3].buf);
+  assertEquals(1,cache.getEvictionCount());
+  assertEquals(1,cache.getEvictedCount());
+  assertEquals(null,cache.getBlock(singleBlocks[0].blockName));
+  cache.getBlock(singleBlocks[1].blockName);
+  cache.cacheBlock(singleBlocks[4].blockName,singleBlocks[4].buf);
+  assertEquals(2,cache.getEvictionCount());
+  assertEquals(2,cache.getEvictedCount());
+  assertEquals(null,cache.getBlock(multiBlocks[0].blockName));
+  cache.cacheBlock(memoryBlocks[3].blockName,memoryBlocks[3].buf,true);
+  assertEquals(3,cache.getEvictionCount());
+  assertEquals(3,cache.getEvictedCount());
+  assertEquals(null,cache.getBlock(memoryBlocks[0].blockName));
+  Block[] bigBlocks=generateFixedBlocks(3,blockSize * 3,"big");
+  cache.cacheBlock(bigBlocks[0].blockName,bigBlocks[0].buf);
+  assertEquals(4,cache.getEvictionCount());
+  assertEquals(6,cache.getEvictedCount());
+  assertEquals(null,cache.getBlock(singleBlocks[2].blockName));
+  assertEquals(null,cache.getBlock(singleBlocks[3].blockName));
+  assertEquals(null,cache.getBlock(singleBlocks[4].blockName));
+  cache.getBlock(bigBlocks[0].blockName);
+  cache.cacheBlock(bigBlocks[1].blockName,bigBlocks[1].buf);
+  assertEquals(5,cache.getEvictionCount());
+  assertEquals(9,cache.getEvictedCount());
+  assertEquals(null,cache.getBlock(singleBlocks[1].blockName));
+  assertEquals(null,cache.getBlock(multiBlocks[1].blockName));
+  assertEquals(null,cache.getBlock(multiBlocks[2].blockName));
+  cache.cacheBlock(bigBlocks[2].blockName,bigBlocks[2].buf,true);
+  assertEquals(6,cache.getEvictionCount());
+  assertEquals(12,cache.getEvictedCount());
+  assertEquals(null,cache.getBlock(memoryBlocks[1].blockName));
+  assertEquals(null,cache.getBlock(memoryBlocks[2].blockName));
+  assertEquals(null,cache.getBlock(memoryBlocks[3].blockName));
+}

@@ -1,0 +1,38 @@
+@Test public void testAliases() throws Exception {
+  KernelServices services=this.createKernelServicesBuilder().setSubsystemXml(this.getSubsystemXml()).build();
+  PathAddress address=getCacheContainerAddress("minimal");
+  String alias="alias0";
+  ModelNode operation=Operations.createListAddOperation(address,CacheContainerResourceDefinition.Attribute.ALIASES,alias);
+  ModelNode result=services.executeOperation(operation);
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  Assert.assertFalse(result.get(RESULT).isDefined());
+  operation=Operations.createListGetOperation(address,CacheContainerResourceDefinition.Attribute.ALIASES,0);
+  result=services.executeOperation(operation);
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  Assert.assertEquals(new ModelNode(alias),result.get(RESULT));
+  operation=Operations.createListRemoveOperation(address,CacheContainerResourceDefinition.Attribute.ALIASES,0);
+  result=services.executeOperation(operation);
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  Assert.assertFalse(result.get(RESULT).isDefined());
+  operation=Operations.createListGetOperation(address,CacheContainerResourceDefinition.Attribute.ALIASES,0);
+  result=services.executeOperation(operation);
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  Assert.assertFalse(result.get(RESULT).isDefined());
+  operation=Util.createOperation("add-alias",address);
+  operation.get(ModelDescriptionConstants.NAME).set(alias);
+  result=services.executeOperation(operation);
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  Assert.assertFalse(result.get(RESULT).isDefined());
+  operation=Operations.createListGetOperation(address,CacheContainerResourceDefinition.Attribute.ALIASES,0);
+  result=services.executeOperation(operation);
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  operation=Util.createOperation("remove-alias",address);
+  operation.get(ModelDescriptionConstants.NAME).set(alias);
+  result=services.executeOperation(operation);
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  Assert.assertFalse(result.get(RESULT).isDefined());
+  operation=Operations.createListGetOperation(address,CacheContainerResourceDefinition.Attribute.ALIASES,0);
+  result=services.executeOperation(operation);
+  Assert.assertEquals(result.toString(),SUCCESS,result.get(OUTCOME).asString());
+  Assert.assertFalse(result.get(RESULT).isDefined());
+}

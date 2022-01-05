@@ -1,0 +1,34 @@
+@Test public void getSessionByIdentifier(){
+  Batcher<Batch> batcher=mock(Batcher.class);
+  Batch batch=mock(Batch.class);
+  ImmutableSession session=mock(ImmutableSession.class);
+  ImmutableSessionAttributes attributes=mock(ImmutableSessionAttributes.class);
+  ImmutableSessionMetaData metaData=mock(ImmutableSessionMetaData.class);
+  String id="session";
+  String name="name";
+  Object value=new Object();
+  Set<String> names=Collections.singleton(name);
+  Instant creationTime=Instant.now();
+  Instant lastAccessedTime=Instant.now();
+  Duration maxInactiveInterval=Duration.ofMinutes(30L);
+  when(this.manager.getBatcher()).thenReturn(batcher);
+  when(this.manager.viewSession(id)).thenReturn(session);
+  when(session.getId()).thenReturn(id);
+  when(session.getAttributes()).thenReturn(attributes);
+  when(attributes.getAttributeNames()).thenReturn(names);
+  when(attributes.getAttribute(name)).thenReturn(value);
+  when(session.getMetaData()).thenReturn(metaData);
+  when(metaData.getCreationTime()).thenReturn(creationTime);
+  when(metaData.getLastAccessedTime()).thenReturn(lastAccessedTime);
+  when(metaData.getMaxInactiveInterval()).thenReturn(maxInactiveInterval);
+  when(batcher.createBatch()).thenReturn(batch);
+  io.undertow.server.session.Session result=this.adapter.getSession(id);
+  assertSame(this.adapter,result.getSessionManager());
+  assertSame(id,result.getId());
+  assertEquals(creationTime.toEpochMilli(),result.getCreationTime());
+  assertEquals(lastAccessedTime.toEpochMilli(),result.getLastAccessedTime());
+  assertEquals(maxInactiveInterval.getSeconds(),result.getMaxInactiveInterval());
+  assertEquals(names,result.getAttributeNames());
+  assertSame(value,result.getAttribute(name));
+  verify(batch).close();
+}

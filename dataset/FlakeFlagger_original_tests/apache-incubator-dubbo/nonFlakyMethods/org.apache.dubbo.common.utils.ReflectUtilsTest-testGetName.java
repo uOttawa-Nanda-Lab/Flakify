@@ -1,0 +1,22 @@
+@Test public void testGetName() throws Exception {
+  assertEquals("boolean",ReflectUtils.getName(boolean.class));
+  assertEquals("int[][][]",ReflectUtils.getName(int[][][].class));
+  assertEquals("java.lang.Object[][]",ReflectUtils.getName(Object[][].class));
+  assertEquals("Z",ReflectUtils.getDesc(boolean.class));
+  assertEquals("[[[I",ReflectUtils.getDesc(int[][][].class));
+  assertEquals("[[Ljava/lang/Object;",ReflectUtils.getDesc(Object[][].class));
+  assertEquals("Z",ReflectUtils.name2desc(ReflectUtils.getName(boolean.class)));
+  assertEquals("[[[I",ReflectUtils.name2desc(ReflectUtils.getName(int[][][].class)));
+  assertEquals("[[Ljava/lang/Object;",ReflectUtils.name2desc(ReflectUtils.getName(Object[][].class)));
+  assertEquals("short[]",ReflectUtils.desc2name(ReflectUtils.getDesc(short[].class)));
+  assertEquals("boolean[]",ReflectUtils.desc2name(ReflectUtils.getDesc(boolean[].class)));
+  assertEquals("byte[]",ReflectUtils.desc2name(ReflectUtils.getDesc(byte[].class)));
+  assertEquals("char[]",ReflectUtils.desc2name(ReflectUtils.getDesc(char[].class)));
+  assertEquals("double[]",ReflectUtils.desc2name(ReflectUtils.getDesc(double[].class)));
+  assertEquals("float[]",ReflectUtils.desc2name(ReflectUtils.getDesc(float[].class)));
+  assertEquals("int[]",ReflectUtils.desc2name(ReflectUtils.getDesc(int[].class)));
+  assertEquals("long[]",ReflectUtils.desc2name(ReflectUtils.getDesc(long[].class)));
+  assertEquals("int",ReflectUtils.desc2name(ReflectUtils.getDesc(int.class)));
+  assertEquals("void",ReflectUtils.desc2name(ReflectUtils.getDesc(void.class)));
+  assertEquals("java.lang.Object[][]",ReflectUtils.desc2name(ReflectUtils.getDesc(Object[][].class)));
+}

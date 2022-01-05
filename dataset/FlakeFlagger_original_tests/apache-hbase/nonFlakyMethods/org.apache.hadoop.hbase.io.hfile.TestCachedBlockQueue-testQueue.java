@@ -1,0 +1,34 @@
+public void testQueue() throws Exception {
+  CachedBlock cb1=new CachedBlock(1000,"cb1",1);
+  CachedBlock cb2=new CachedBlock(1500,"cb2",2);
+  CachedBlock cb3=new CachedBlock(1000,"cb3",3);
+  CachedBlock cb4=new CachedBlock(1500,"cb4",4);
+  CachedBlock cb5=new CachedBlock(1000,"cb5",5);
+  CachedBlock cb6=new CachedBlock(1750,"cb6",6);
+  CachedBlock cb7=new CachedBlock(1000,"cb7",7);
+  CachedBlock cb8=new CachedBlock(1500,"cb8",8);
+  CachedBlock cb9=new CachedBlock(1000,"cb9",9);
+  CachedBlock cb10=new CachedBlock(1500,"cb10",10);
+  CachedBlockQueue queue=new CachedBlockQueue(10000,1000);
+  queue.add(cb1);
+  queue.add(cb2);
+  queue.add(cb3);
+  queue.add(cb4);
+  queue.add(cb5);
+  queue.add(cb6);
+  queue.add(cb7);
+  queue.add(cb8);
+  queue.add(cb9);
+  queue.add(cb10);
+  long expectedSize=cb1.heapSize() + cb2.heapSize() + cb3.heapSize()+ cb4.heapSize()+ cb5.heapSize()+ cb6.heapSize()+ cb7.heapSize()+ cb8.heapSize();
+  assertEquals(queue.heapSize(),expectedSize);
+  org.apache.hadoop.hbase.io.hfile.CachedBlock[] blocks=queue.get();
+  assertEquals(blocks[0].getName(),"cb1");
+  assertEquals(blocks[1].getName(),"cb2");
+  assertEquals(blocks[2].getName(),"cb3");
+  assertEquals(blocks[3].getName(),"cb4");
+  assertEquals(blocks[4].getName(),"cb5");
+  assertEquals(blocks[5].getName(),"cb6");
+  assertEquals(blocks[6].getName(),"cb7");
+  assertEquals(blocks[7].getName(),"cb8");
+}

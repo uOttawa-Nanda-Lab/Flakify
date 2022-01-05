@@ -1,0 +1,31 @@
+@Test public void testGetResources() throws Exception {
+  TestStreamProvider streamProvider=new TestStreamProvider();
+  TestJMXHostProvider hostProvider=new TestJMXHostProvider();
+  JMXPropertyProvider propertyProvider=new JMXPropertyProvider(PropertyHelper.getJMXPropertyIds(Resource.Type.HostComponent),streamProvider,hostProvider,PropertyHelper.getPropertyId("HostRoles","cluster_name"),PropertyHelper.getPropertyId("HostRoles","host_name"),PropertyHelper.getPropertyId("HostRoles","component_name"));
+  Resource resource=new ResourceImpl(Resource.Type.HostComponent);
+  resource.setProperty(HOST_COMPONENT_HOST_NAME_PROPERTY_ID,"domu-12-31-39-0e-34-e1.compute-1.internal");
+  resource.setProperty(HOST_COMPONENT_COMPONENT_NAME_PROPERTY_ID,"NAMENODE");
+  Request request=PropertyHelper.getReadRequest(Collections.<String>emptySet());
+  Assert.assertEquals(1,propertyProvider.populateResources(Collections.singleton(resource),request,null).size());
+  Assert.assertEquals(propertyProvider.getSpec("ec2-50-17-129-192.compute-1.amazonaws.com:50070"),streamProvider.getLastSpec());
+  Assert.assertEquals(1084287,resource.getPropertyValue(PropertyHelper.getPropertyId("metrics/rpc","ReceivedBytes")));
+  Assert.assertEquals(173,resource.getPropertyValue(PropertyHelper.getPropertyId("metrics/dfs/namenode","CreateFileOps")));
+  Assert.assertEquals(405.8686,resource.getPropertyValue(PropertyHelper.getPropertyId("metrics/jvm","memHeapUsedM")));
+  resource=new ResourceImpl(Resource.Type.HostComponent);
+  resource.setProperty(HOST_COMPONENT_HOST_NAME_PROPERTY_ID,"domu-12-31-39-14-ee-b3.compute-1.internal");
+  resource.setProperty(HOST_COMPONENT_COMPONENT_NAME_PROPERTY_ID,"DATANODE");
+  request=PropertyHelper.getReadRequest(Collections.<String>emptySet());
+  propertyProvider.populateResources(Collections.singleton(resource),request,null);
+  Assert.assertEquals(propertyProvider.getSpec("ec2-23-23-71-42.compute-1.amazonaws.com:50075"),streamProvider.getLastSpec());
+  Assert.assertEquals(0,resource.getPropertyValue(PropertyHelper.getPropertyId("metrics/rpc","ReceivedBytes")));
+  Assert.assertEquals(16.870667,resource.getPropertyValue(PropertyHelper.getPropertyId("metrics/jvm","memHeapUsedM")));
+  resource=new ResourceImpl(Resource.Type.HostComponent);
+  resource.setProperty(HOST_COMPONENT_HOST_NAME_PROPERTY_ID,"domu-12-31-39-14-ee-b3.compute-1.internal");
+  resource.setProperty(HOST_COMPONENT_COMPONENT_NAME_PROPERTY_ID,"JOBTRACKER");
+  request=PropertyHelper.getReadRequest(Collections.singleton(PropertyHelper.getPropertyId("metrics/jvm","threadsWaiting")));
+  propertyProvider.populateResources(Collections.singleton(resource),request,null);
+  Assert.assertEquals(propertyProvider.getSpec("ec2-23-23-71-42.compute-1.amazonaws.com:50030"),streamProvider.getLastSpec());
+  Assert.assertEquals(3,PropertyHelper.getProperties(resource).size());
+  Assert.assertEquals(59,resource.getPropertyValue(PropertyHelper.getPropertyId("metrics/jvm","threadsWaiting")));
+  Assert.assertNull(resource.getPropertyValue(PropertyHelper.getPropertyId("metrics/jvm","gcCount")));
+}

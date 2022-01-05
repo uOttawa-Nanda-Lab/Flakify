@@ -1,0 +1,31 @@
+@Test public void acceptHandshakeAsClient() throws Exception {
+  HandshakeImpl1Server response=new HandshakeImpl1Server();
+  HandshakeImpl1Client request=new HandshakeImpl1Client();
+  Draft_6455 draft_6455=new Draft_6455();
+  response.put("Upgrade","websocket");
+  assertEquals(HandshakeState.NOT_MATCHED,draft_6455.acceptHandshakeAsClient(request,response));
+  response.put("Connection","upgrade");
+  assertEquals(HandshakeState.NOT_MATCHED,draft_6455.acceptHandshakeAsClient(request,response));
+  response.put("Sec-WebSocket-Version","13");
+  assertEquals(HandshakeState.NOT_MATCHED,draft_6455.acceptHandshakeAsClient(request,response));
+  request.put("Sec-WebSocket-Key","dGhlIHNhbXBsZSBub25jZQ==");
+  assertEquals(HandshakeState.NOT_MATCHED,draft_6455.acceptHandshakeAsClient(request,response));
+  response.put("Sec-WebSocket-Accept","s3pPLMBiTxaQ9kYGzzhZRbK+xOo=");
+  assertEquals(HandshakeState.MATCHED,draft_6455.acceptHandshakeAsClient(request,response));
+  response.put("Sec-WebSocket-Protocol","chat");
+  assertEquals(HandshakeState.NOT_MATCHED,draft_6455.acceptHandshakeAsClient(request,response));
+  draft_6455=new Draft_6455(Collections.<IExtension>emptyList(),Collections.<IProtocol>singletonList(new Protocol("chat")));
+  assertEquals(HandshakeState.MATCHED,draft_6455.acceptHandshakeAsClient(request,response));
+  ArrayList<IProtocol> protocols=new ArrayList<IProtocol>();
+  protocols.add(new Protocol(""));
+  protocols.add(new Protocol("chat"));
+  draft_6455=new Draft_6455(Collections.<IExtension>emptyList(),protocols);
+  assertEquals(HandshakeState.MATCHED,draft_6455.acceptHandshakeAsClient(request,response));
+  draft_6455=new Draft_6455();
+  assertEquals(HandshakeState.NOT_MATCHED,draft_6455.acceptHandshakeAsClient(request,response));
+  protocols.clear();
+  protocols.add(new Protocol("chat3"));
+  protocols.add(new Protocol("3chat"));
+  draft_6455=new Draft_6455(Collections.<IExtension>emptyList(),protocols);
+  assertEquals(HandshakeState.NOT_MATCHED,draft_6455.acceptHandshakeAsClient(request,response));
+}

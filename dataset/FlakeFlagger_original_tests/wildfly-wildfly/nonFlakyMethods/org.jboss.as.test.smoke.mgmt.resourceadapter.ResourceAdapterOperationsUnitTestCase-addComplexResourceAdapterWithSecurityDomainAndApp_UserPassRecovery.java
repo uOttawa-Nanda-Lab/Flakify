@@ -1,0 +1,3 @@
+@Test public void addComplexResourceAdapterWithSecurityDomainAndApp_UserPassRecovery() throws Exception {
+  complexResourceAdapterAddTest(ConnectionSecurityType.SECURITY_DOMAIN_AND_APPLICATION,ConnectionSecurityType.USER_PASSWORD);
+}

@@ -1,0 +1,32 @@
+@Deployment(resources={"org/activiti/examples/bpmn/executionlistener/ExecutionListenersProcess.bpmn20.xml"}) public void testExecutionListenersOnAllPossibleElements(){
+  RecorderExecutionListener.clear();
+  ProcessInstance processInstance=runtimeService.startProcessInstanceByKey("executionListenersProcess","businessKey123");
+  String varSetInExecutionListener=(String)runtimeService.getVariable(processInstance.getId(),"variableSetInExecutionListener");
+  assertNotNull(varSetInExecutionListener);
+  assertEquals("firstValue",varSetInExecutionListener);
+  String businessKey=(String)runtimeService.getVariable(processInstance.getId(),"businessKeyInExecution");
+  assertNotNull(businessKey);
+  assertEquals("businessKey123",businessKey);
+  Task task=taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
+  assertNotNull(task);
+  taskService.complete(task.getId());
+  varSetInExecutionListener=(String)runtimeService.getVariable(processInstance.getId(),"variableSetInExecutionListener");
+  assertNotNull(varSetInExecutionListener);
+  assertEquals("secondValue",varSetInExecutionListener);
+  ExampleExecutionListenerPojo myPojo=new ExampleExecutionListenerPojo();
+  runtimeService.setVariable(processInstance.getId(),"myPojo",myPojo);
+  task=taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
+  assertNotNull(task);
+  taskService.complete(task.getId());
+  ExampleExecutionListenerPojo pojoVariable=(ExampleExecutionListenerPojo)runtimeService.getVariable(processInstance.getId(),"myPojo");
+  assertNotNull(pojoVariable.getReceivedEventName());
+  assertEquals("end",pojoVariable.getReceivedEventName());
+  task=taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
+  assertNotNull(task);
+  taskService.complete(task.getId());
+  assertProcessEnded(processInstance.getId());
+  List<RecordedEvent> events=RecorderExecutionListener.getRecordedEvents();
+  assertEquals(1,events.size());
+  RecordedEvent event=events.get(0);
+  assertEquals("End Process Listener",event.getParameter());
+}

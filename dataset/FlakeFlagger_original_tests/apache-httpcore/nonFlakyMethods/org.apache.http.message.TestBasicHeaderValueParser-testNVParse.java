@@ -1,0 +1,34 @@
+@Test public void testNVParse(){
+  String s="test";
+  NameValuePair param=BasicHeaderValueParser.parseNameValuePair(s,null);
+  Assert.assertEquals("test",param.getName());
+  Assert.assertEquals(null,param.getValue());
+  s="test=stuff";
+  param=BasicHeaderValueParser.parseNameValuePair(s,null);
+  Assert.assertEquals("test",param.getName());
+  Assert.assertEquals("stuff",param.getValue());
+  s="   test  =   stuff ";
+  param=BasicHeaderValueParser.parseNameValuePair(s,null);
+  Assert.assertEquals("test",param.getName());
+  Assert.assertEquals("stuff",param.getValue());
+  s="test  = \"stuff\"";
+  param=BasicHeaderValueParser.parseNameValuePair(s,null);
+  Assert.assertEquals("test",param.getName());
+  Assert.assertEquals("stuff",param.getValue());
+  s="test  = \"  stuff\\\"\"";
+  param=BasicHeaderValueParser.parseNameValuePair(s,null);
+  Assert.assertEquals("test",param.getName());
+  Assert.assertEquals("  stuff\\\"",param.getValue());
+  s="  test";
+  param=BasicHeaderValueParser.parseNameValuePair(s,null);
+  Assert.assertEquals("test",param.getName());
+  Assert.assertEquals(null,param.getValue());
+  s="  ";
+  param=BasicHeaderValueParser.parseNameValuePair(s,null);
+  Assert.assertEquals("",param.getName());
+  Assert.assertEquals(null,param.getValue());
+  s=" = stuff ";
+  param=BasicHeaderValueParser.parseNameValuePair(s,null);
+  Assert.assertEquals("",param.getName());
+  Assert.assertEquals("stuff",param.getValue());
+}

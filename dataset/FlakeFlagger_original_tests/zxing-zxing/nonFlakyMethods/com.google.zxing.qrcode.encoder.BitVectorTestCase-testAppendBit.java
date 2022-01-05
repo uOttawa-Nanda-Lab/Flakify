@@ -1,0 +1,34 @@
+@Test public void testAppendBit(){
+  BitArray v=new BitArray();
+  assertEquals(0,v.getSizeInBytes());
+  v.appendBit(true);
+  assertEquals(1,v.getSize());
+  assertEquals(0x80000000L,getUnsignedInt(v,0));
+  v.appendBit(false);
+  assertEquals(2,v.getSize());
+  assertEquals(0x80000000L,getUnsignedInt(v,0));
+  v.appendBit(true);
+  assertEquals(3,v.getSize());
+  assertEquals(0xa0000000L,getUnsignedInt(v,0));
+  v.appendBit(false);
+  assertEquals(4,v.getSize());
+  assertEquals(0xa0000000L,getUnsignedInt(v,0));
+  v.appendBit(true);
+  assertEquals(5,v.getSize());
+  assertEquals(0xa8000000L,getUnsignedInt(v,0));
+  v.appendBit(false);
+  assertEquals(6,v.getSize());
+  assertEquals(0xa8000000L,getUnsignedInt(v,0));
+  v.appendBit(true);
+  assertEquals(7,v.getSize());
+  assertEquals(0xaa000000L,getUnsignedInt(v,0));
+  v.appendBit(false);
+  assertEquals(8,v.getSize());
+  assertEquals(0xaa000000L,getUnsignedInt(v,0));
+  v.appendBit(true);
+  assertEquals(9,v.getSize());
+  assertEquals(0xaa800000L,getUnsignedInt(v,0));
+  v.appendBit(false);
+  assertEquals(10,v.getSize());
+  assertEquals(0xaa800000L,getUnsignedInt(v,0));
+}

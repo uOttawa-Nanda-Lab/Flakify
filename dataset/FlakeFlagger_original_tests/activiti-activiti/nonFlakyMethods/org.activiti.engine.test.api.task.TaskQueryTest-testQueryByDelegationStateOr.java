@@ -1,0 +1,32 @@
+public void testQueryByDelegationStateOr(){
+  TaskQuery query=taskService.createTaskQuery().or().taskId("invalid").taskDelegationState(null);
+  assertEquals(12,query.count());
+  assertEquals(12,query.list().size());
+  query=taskService.createTaskQuery().or().taskId("invalid").taskDelegationState(DelegationState.PENDING);
+  assertEquals(0,query.count());
+  assertEquals(0,query.list().size());
+  query=taskService.createTaskQuery().or().taskId("invalid").taskDelegationState(DelegationState.RESOLVED);
+  assertEquals(0,query.count());
+  assertEquals(0,query.list().size());
+  String taskId=taskService.createTaskQuery().or().taskId("invalid").taskAssignee(GONZO).singleResult().getId();
+  taskService.delegateTask(taskId,KERMIT);
+  query=taskService.createTaskQuery().or().taskId("invalid").taskDelegationState(null);
+  assertEquals(11,query.count());
+  assertEquals(11,query.list().size());
+  query=taskService.createTaskQuery().or().taskId("invalid").taskDelegationState(DelegationState.PENDING);
+  assertEquals(1,query.count());
+  assertEquals(1,query.list().size());
+  query=taskService.createTaskQuery().or().taskId("invalid").taskDelegationState(DelegationState.RESOLVED);
+  assertEquals(0,query.count());
+  assertEquals(0,query.list().size());
+  taskService.resolveTask(taskId);
+  query=taskService.createTaskQuery().or().taskId("invalid").taskDelegationState(null);
+  assertEquals(11,query.count());
+  assertEquals(11,query.list().size());
+  query=taskService.createTaskQuery().or().taskId("invalid").taskDelegationState(DelegationState.PENDING);
+  assertEquals(0,query.count());
+  assertEquals(0,query.list().size());
+  query=taskService.createTaskQuery().or().taskId("invalid").taskDelegationState(DelegationState.RESOLVED);
+  assertEquals(1,query.count());
+  assertEquals(1,query.list().size());
+}

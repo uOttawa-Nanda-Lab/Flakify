@@ -1,0 +1,35 @@
+@Deployment(resources={"org/activiti/engine/test/api/oneSubProcess.bpmn20.xml"}) public void testRemoveVariablesLocalWithParentScope(){
+  Map<String,Object> vars=new HashMap<String,Object>();
+  vars.put("variable1","value1");
+  vars.put("variable2","value2");
+  ProcessInstance processInstance=runtimeService.startProcessInstanceByKey("startSimpleSubProcess",vars);
+  Task currentTask=taskService.createTaskQuery().singleResult();
+  Map<String,Object> varsToDelete=new HashMap<String,Object>();
+  varsToDelete.put("variable3","value3");
+  varsToDelete.put("variable4","value4");
+  varsToDelete.put("variable5","value5");
+  runtimeService.setVariablesLocal(currentTask.getExecutionId(),varsToDelete);
+  runtimeService.setVariableLocal(currentTask.getExecutionId(),"variable6","value6");
+  assertEquals("value3",runtimeService.getVariable(currentTask.getExecutionId(),"variable3"));
+  assertEquals("value3",runtimeService.getVariableLocal(currentTask.getExecutionId(),"variable3"));
+  assertEquals("value4",runtimeService.getVariable(currentTask.getExecutionId(),"variable4"));
+  assertEquals("value4",runtimeService.getVariableLocal(currentTask.getExecutionId(),"variable4"));
+  assertEquals("value5",runtimeService.getVariable(currentTask.getExecutionId(),"variable5"));
+  assertEquals("value5",runtimeService.getVariableLocal(currentTask.getExecutionId(),"variable5"));
+  assertEquals("value6",runtimeService.getVariable(currentTask.getExecutionId(),"variable6"));
+  assertEquals("value6",runtimeService.getVariableLocal(currentTask.getExecutionId(),"variable6"));
+  runtimeService.removeVariablesLocal(currentTask.getExecutionId(),varsToDelete.keySet());
+  assertEquals("value1",runtimeService.getVariable(currentTask.getExecutionId(),"variable1"));
+  assertEquals("value2",runtimeService.getVariable(currentTask.getExecutionId(),"variable2"));
+  assertNull(runtimeService.getVariable(currentTask.getExecutionId(),"variable3"));
+  assertNull(runtimeService.getVariableLocal(currentTask.getExecutionId(),"variable3"));
+  assertNull(runtimeService.getVariable(currentTask.getExecutionId(),"variable4"));
+  assertNull(runtimeService.getVariableLocal(currentTask.getExecutionId(),"variable4"));
+  assertNull(runtimeService.getVariable(currentTask.getExecutionId(),"variable5"));
+  assertNull(runtimeService.getVariableLocal(currentTask.getExecutionId(),"variable5"));
+  assertEquals("value6",runtimeService.getVariable(currentTask.getExecutionId(),"variable6"));
+  assertEquals("value6",runtimeService.getVariableLocal(currentTask.getExecutionId(),"variable6"));
+  checkHistoricVariableUpdateEntity("variable3",processInstance.getId());
+  checkHistoricVariableUpdateEntity("variable4",processInstance.getId());
+  checkHistoricVariableUpdateEntity("variable5",processInstance.getId());
+}

@@ -1,0 +1,2 @@
+@Test public void transformationOfAnnotationOnAnnotation(){
+}

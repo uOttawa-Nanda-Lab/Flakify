@@ -1,0 +1,37 @@
+@Test public void should_iterate_with_default_params() throws Exception {
+  long partitionKey=RandomUtils.nextLong();
+  String clusteredValuePrefix=insertValues(partitionKey,1,5);
+  Iterator<ClusteredEntity> iter=manager.sliceQuery(ClusteredEntity.class).partitionComponents(partitionKey).iterator();
+  assertThat(iter.hasNext()).isTrue();
+  ClusteredEntity next=iter.next();
+  assertThat(next.getValue()).isEqualTo(clusteredValuePrefix + 1);
+  assertThat(next.getId().getId()).isEqualTo(partitionKey);
+  assertThat(next.getId().getCount()).isEqualTo(1);
+  assertThat(next.getId().getName()).isEqualTo("name1");
+  assertThat(iter.hasNext()).isTrue();
+  assertThat(iter.hasNext()).isTrue();
+  next=iter.next();
+  assertThat(next.getId().getId()).isEqualTo(partitionKey);
+  assertThat(next.getId().getCount()).isEqualTo(1);
+  assertThat(next.getId().getName()).isEqualTo("name2");
+  assertThat(next.getValue()).isEqualTo(clusteredValuePrefix + 2);
+  assertThat(iter.hasNext()).isTrue();
+  next=iter.next();
+  assertThat(next.getId().getId()).isEqualTo(partitionKey);
+  assertThat(next.getId().getCount()).isEqualTo(1);
+  assertThat(next.getId().getName()).isEqualTo("name3");
+  assertThat(next.getValue()).isEqualTo(clusteredValuePrefix + 3);
+  assertThat(iter.hasNext()).isTrue();
+  next=iter.next();
+  assertThat(next.getId().getId()).isEqualTo(partitionKey);
+  assertThat(next.getId().getCount()).isEqualTo(1);
+  assertThat(next.getId().getName()).isEqualTo("name4");
+  assertThat(next.getValue()).isEqualTo(clusteredValuePrefix + 4);
+  assertThat(iter.hasNext()).isTrue();
+  next=iter.next();
+  assertThat(next.getId().getId()).isEqualTo(partitionKey);
+  assertThat(next.getId().getCount()).isEqualTo(1);
+  assertThat(next.getId().getName()).isEqualTo("name5");
+  assertThat(next.getValue()).isEqualTo(clusteredValuePrefix + 5);
+  assertThat(iter.hasNext()).isFalse();
+}

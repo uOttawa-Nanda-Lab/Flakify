@@ -1,0 +1,31 @@
+public void testPageFilter() throws Exception {
+  KeyValue[] expectedKVs={new KeyValue(ROWS_ONE[0],FAMILIES[0],QUALIFIERS_ONE[0],VALUES[0]),new KeyValue(ROWS_ONE[0],FAMILIES[0],QUALIFIERS_ONE[2],VALUES[0]),new KeyValue(ROWS_ONE[0],FAMILIES[0],QUALIFIERS_ONE[3],VALUES[0]),new KeyValue(ROWS_ONE[0],FAMILIES[1],QUALIFIERS_ONE[0],VALUES[0]),new KeyValue(ROWS_ONE[0],FAMILIES[1],QUALIFIERS_ONE[2],VALUES[0]),new KeyValue(ROWS_ONE[0],FAMILIES[1],QUALIFIERS_ONE[3],VALUES[0]),new KeyValue(ROWS_ONE[2],FAMILIES[0],QUALIFIERS_ONE[0],VALUES[0]),new KeyValue(ROWS_ONE[2],FAMILIES[0],QUALIFIERS_ONE[2],VALUES[0]),new KeyValue(ROWS_ONE[2],FAMILIES[0],QUALIFIERS_ONE[3],VALUES[0]),new KeyValue(ROWS_ONE[2],FAMILIES[1],QUALIFIERS_ONE[0],VALUES[0]),new KeyValue(ROWS_ONE[2],FAMILIES[1],QUALIFIERS_ONE[2],VALUES[0]),new KeyValue(ROWS_ONE[2],FAMILIES[1],QUALIFIERS_ONE[3],VALUES[0]),new KeyValue(ROWS_ONE[3],FAMILIES[0],QUALIFIERS_ONE[0],VALUES[0]),new KeyValue(ROWS_ONE[3],FAMILIES[0],QUALIFIERS_ONE[2],VALUES[0]),new KeyValue(ROWS_ONE[3],FAMILIES[0],QUALIFIERS_ONE[3],VALUES[0]),new KeyValue(ROWS_ONE[3],FAMILIES[1],QUALIFIERS_ONE[0],VALUES[0]),new KeyValue(ROWS_ONE[3],FAMILIES[1],QUALIFIERS_ONE[2],VALUES[0]),new KeyValue(ROWS_ONE[3],FAMILIES[1],QUALIFIERS_ONE[3],VALUES[0]),new KeyValue(ROWS_TWO[0],FAMILIES[0],QUALIFIERS_TWO[0],VALUES[1]),new KeyValue(ROWS_TWO[0],FAMILIES[0],QUALIFIERS_TWO[2],VALUES[1]),new KeyValue(ROWS_TWO[0],FAMILIES[0],QUALIFIERS_TWO[3],VALUES[1]),new KeyValue(ROWS_TWO[0],FAMILIES[1],QUALIFIERS_TWO[0],VALUES[1]),new KeyValue(ROWS_TWO[0],FAMILIES[1],QUALIFIERS_TWO[2],VALUES[1]),new KeyValue(ROWS_TWO[0],FAMILIES[1],QUALIFIERS_TWO[3],VALUES[1]),new KeyValue(ROWS_TWO[2],FAMILIES[0],QUALIFIERS_TWO[0],VALUES[1]),new KeyValue(ROWS_TWO[2],FAMILIES[0],QUALIFIERS_TWO[2],VALUES[1]),new KeyValue(ROWS_TWO[2],FAMILIES[0],QUALIFIERS_TWO[3],VALUES[1]),new KeyValue(ROWS_TWO[2],FAMILIES[1],QUALIFIERS_TWO[0],VALUES[1]),new KeyValue(ROWS_TWO[2],FAMILIES[1],QUALIFIERS_TWO[2],VALUES[1]),new KeyValue(ROWS_TWO[2],FAMILIES[1],QUALIFIERS_TWO[3],VALUES[1]),new KeyValue(ROWS_TWO[3],FAMILIES[0],QUALIFIERS_TWO[0],VALUES[1]),new KeyValue(ROWS_TWO[3],FAMILIES[0],QUALIFIERS_TWO[2],VALUES[1]),new KeyValue(ROWS_TWO[3],FAMILIES[0],QUALIFIERS_TWO[3],VALUES[1]),new KeyValue(ROWS_TWO[3],FAMILIES[1],QUALIFIERS_TWO[0],VALUES[1]),new KeyValue(ROWS_TWO[3],FAMILIES[1],QUALIFIERS_TWO[2],VALUES[1]),new KeyValue(ROWS_TWO[3],FAMILIES[1],QUALIFIERS_TWO[3],VALUES[1])};
+  long expectedRows=6;
+  long expectedKeys=this.colsPerRow;
+  Scan s=new Scan();
+  s.setFilter(new PageFilter(expectedRows));
+  verifyScan(s,expectedRows,expectedKeys);
+  s.setFilter(new PageFilter(expectedRows));
+  verifyScanFull(s,expectedKVs);
+  expectedRows=4;
+  expectedKeys=this.colsPerRow;
+  s=new Scan();
+  s.setFilter(new PageFilter(expectedRows));
+  verifyScan(s,expectedRows,expectedKeys);
+  s.setFilter(new PageFilter(expectedRows));
+  verifyScanFull(s,Arrays.copyOf(expectedKVs,24));
+  expectedRows=2;
+  expectedKeys=this.colsPerRow;
+  s=new Scan();
+  s.setFilter(new PageFilter(expectedRows));
+  verifyScan(s,expectedRows,expectedKeys);
+  s.setFilter(new PageFilter(expectedRows));
+  verifyScanFull(s,Arrays.copyOf(expectedKVs,12));
+  expectedRows=1;
+  expectedKeys=this.colsPerRow;
+  s=new Scan();
+  s.setFilter(new PageFilter(expectedRows));
+  verifyScan(s,expectedRows,expectedKeys);
+  s.setFilter(new PageFilter(expectedRows));
+  verifyScanFull(s,Arrays.copyOf(expectedKVs,6));
+}

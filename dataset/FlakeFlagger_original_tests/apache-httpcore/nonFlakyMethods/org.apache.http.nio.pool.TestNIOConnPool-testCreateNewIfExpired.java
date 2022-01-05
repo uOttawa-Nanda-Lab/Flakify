@@ -1,0 +1,31 @@
+@Test public void testCreateNewIfExpired() throws Exception {
+  IOSession iosession1=Mockito.mock(IOSession.class);
+  Mockito.when(iosession1.isClosed()).thenReturn(Boolean.TRUE);
+  SessionRequest sessionRequest1=Mockito.mock(SessionRequest.class);
+  Mockito.when(sessionRequest1.getAttachment()).thenReturn("somehost");
+  Mockito.when(sessionRequest1.getSession()).thenReturn(iosession1);
+  ConnectingIOReactor ioreactor=Mockito.mock(ConnectingIOReactor.class);
+  Mockito.when(ioreactor.connect(Mockito.eq(InetSocketAddress.createUnresolved("somehost",80)),Mockito.any(SocketAddress.class),Mockito.any(),Mockito.any(SessionRequestCallback.class))).thenReturn(sessionRequest1);
+  LocalSessionPool pool=new LocalSessionPool(ioreactor,2,2);
+  Future<LocalPoolEntry> future1=pool.lease("somehost",null);
+  Mockito.verify(ioreactor,Mockito.times(1)).connect(Mockito.any(SocketAddress.class),Mockito.any(SocketAddress.class),Mockito.any(),Mockito.any(SessionRequestCallback.class));
+  pool.requestCompleted(sessionRequest1);
+  Assert.assertTrue(future1.isDone());
+  LocalPoolEntry entry1=future1.get();
+  Assert.assertNotNull(entry1);
+  entry1.updateExpiry(1,TimeUnit.MILLISECONDS);
+  pool.release(entry1,true);
+  Thread.sleep(200L);
+  Future<LocalPoolEntry> future2=pool.lease("somehost",null);
+  Assert.assertFalse(future2.isDone());
+  Mockito.verify(iosession1).close();
+  Mockito.verify(ioreactor,Mockito.times(2)).connect(Mockito.any(SocketAddress.class),Mockito.any(SocketAddress.class),Mockito.any(),Mockito.any(SessionRequestCallback.class));
+  PoolStats totals=pool.getTotalStats();
+  Assert.assertEquals(0,totals.getAvailable());
+  Assert.assertEquals(0,totals.getLeased());
+  Assert.assertEquals(1,totals.getPending());
+  PoolStats stats=pool.getStats("somehost");
+  Assert.assertEquals(0,stats.getAvailable());
+  Assert.assertEquals(0,stats.getLeased());
+  Assert.assertEquals(1,stats.getPending());
+}

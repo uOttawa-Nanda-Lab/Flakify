@@ -1,0 +1,57 @@
+@Deployment public void testRepeatWithEnd() throws Throwable {
+  Calendar calendar=Calendar.getInstance();
+  Date baseTime=calendar.getTime();
+  DateTimeFormatter fmt=ISODateTimeFormat.dateTime();
+  calendar.setTime(baseTime);
+  calendar.add(Calendar.MINUTE,10);
+  DateTime dt=new DateTime(calendar.getTime());
+  String dateStr1=fmt.print(dt);
+  calendar.setTime(baseTime);
+  calendar.add(Calendar.HOUR,1);
+  calendar.add(Calendar.MINUTE,30);
+  dt=new DateTime(calendar.getTime());
+  String dateStr2=fmt.print(dt);
+  Calendar nextTimeCal=Calendar.getInstance();
+  nextTimeCal.setTime(baseTime);
+  processEngineConfiguration.getClock().setCurrentTime(nextTimeCal.getTime());
+  ProcessInstance processInstance=runtimeService.startProcessInstanceByKey("repeatWithEnd");
+  runtimeService.setVariable(processInstance.getId(),"EndDateForCatch1",dateStr1);
+  runtimeService.setVariable(processInstance.getId(),"EndDateForCatch2",dateStr2);
+  List<Task> tasks=taskService.createTaskQuery().list();
+  assertEquals(1,tasks.size());
+  tasks=taskService.createTaskQuery().list();
+  assertEquals(1,tasks.size());
+  Task task=tasks.get(0);
+  assertEquals("Task A",task.getName());
+  taskService.complete(task.getId());
+  Job timerJob=managementService.createTimerJobQuery().processInstanceId(processInstance.getId()).singleResult();
+  assertNotNull(timerJob);
+  waitForJobExecutorToProcessAllJobs(2000,500);
+  Job timerJobAfter=managementService.createTimerJobQuery().processInstanceId(processInstance.getId()).singleResult();
+  assertEquals(timerJob.getId(),timerJobAfter.getId());
+  nextTimeCal.add(Calendar.HOUR,1);
+  nextTimeCal.add(Calendar.MINUTE,5);
+  processEngineConfiguration.getClock().setCurrentTime(nextTimeCal.getTime());
+  waitForJobExecutorToProcessAllJobs(2000,200);
+  List<Job> jobs=managementService.createTimerJobQuery().list();
+  assertEquals(0,jobs.size());
+  tasks=taskService.createTaskQuery().list();
+  assertEquals(1,tasks.size());
+  task=tasks.get(0);
+  assertEquals("Task C",task.getName());
+  taskService.complete(task.getId());
+  nextTimeCal.add(Calendar.HOUR,1);
+  nextTimeCal.add(Calendar.MINUTE,5);
+  processEngineConfiguration.getClock().setCurrentTime(nextTimeCal.getTime());
+  waitForJobExecutorToProcessAllJobs(2000,500);
+  if (processEngineConfiguration.getHistoryLevel().isAtLeast(HistoryLevel.ACTIVITY)) {
+    HistoricProcessInstance historicInstance=historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstance.getId()).singleResult();
+    assertNotNull(historicInstance.getEndTime());
+  }
+  List<ProcessInstance> processInstances=runtimeService.createProcessInstanceQuery().list();
+  assertEquals(0,processInstances.size());
+  jobs=managementService.createTimerJobQuery().list();
+  assertEquals(0,jobs.size());
+  tasks=taskService.createTaskQuery().list();
+  assertEquals(0,tasks.size());
+}

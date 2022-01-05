@@ -1,0 +1,34 @@
+@Test public void deepTreeSerialization() throws IOException {
+  Logger a=lc.getLogger("aaaaaaaa");
+  lc.getLogger("aaaaaaaa.a");
+  lc.getLogger("aaaaaaaa.a.a");
+  lc.getLogger("aaaaaaaa.a.b");
+  lc.getLogger("aaaaaaaa.a.c");
+  lc.getLogger("aaaaaaaa.a.d");
+  lc.getLogger("aaaaaaaa.b");
+  lc.getLogger("aaaaaaaa.b.a");
+  lc.getLogger("aaaaaaaa.b.b");
+  lc.getLogger("aaaaaaaa.b.c");
+  lc.getLogger("aaaaaaaa.b.d");
+  lc.getLogger("aaaaaaaa.c");
+  lc.getLogger("aaaaaaaa.c.a");
+  lc.getLogger("aaaaaaaa.c.b");
+  lc.getLogger("aaaaaaaa.c.c");
+  lc.getLogger("aaaaaaaa.c.d");
+  lc.getLogger("aaaaaaaa.d");
+  lc.getLogger("aaaaaaaa.d.a");
+  lc.getLogger("aaaaaaaa.d.b");
+  lc.getLogger("aaaaaaaa.d.c");
+  lc.getLogger("aaaaaaaa.d.d");
+  Logger b=lc.getLogger("b");
+  writeObject(oos,a);
+  oos.close();
+  int sizeA=bos.size();
+  bos=new ByteArrayOutputStream();
+  oos=new ObjectOutputStream(bos);
+  writeObject(oos,b);
+  oos.close();
+  int sizeB=bos.size();
+  assertTrue("serialized logger should be less than 100 bytes",sizeA < 100);
+  assertTrue("serialized loggers should be nearly the same size a:" + sizeA + ", sizeB:"+ sizeB,(sizeA - sizeB) < 10);
+}

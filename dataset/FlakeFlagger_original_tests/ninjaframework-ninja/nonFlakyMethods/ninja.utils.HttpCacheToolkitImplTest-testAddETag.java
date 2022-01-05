@@ -1,0 +1,36 @@
+@Test public void testAddETag(){
+  HttpCacheToolkit httpCacheToolkit=new HttpCacheToolkitImpl(ninjaProperties);
+  when(ninjaProperties.isProd()).thenReturn(false);
+  httpCacheToolkit.addEtag(context,result,0L);
+  verify(result).addHeader(HttpHeaderConstants.CACHE_CONTROL,"no-cache");
+  when(ninjaProperties.isProd()).thenReturn(true);
+  reset(result);
+  when(ninjaProperties.getWithDefault(NinjaConstant.HTTP_CACHE_CONTROL,NinjaConstant.HTTP_CACHE_CONTROL_DEFAULT)).thenReturn("1234");
+  httpCacheToolkit.addEtag(context,result,0L);
+  verify(result).addHeader(HttpHeaderConstants.CACHE_CONTROL,"max-age=1234");
+  reset(result);
+  when(ninjaProperties.getWithDefault(NinjaConstant.HTTP_CACHE_CONTROL,NinjaConstant.HTTP_CACHE_CONTROL_DEFAULT)).thenReturn("0");
+  httpCacheToolkit.addEtag(context,result,0L);
+  verify(result).addHeader(HttpHeaderConstants.CACHE_CONTROL,"no-cache");
+  reset(result);
+  when(ninjaProperties.getBooleanWithDefault(NinjaConstant.HTTP_USE_ETAG,NinjaConstant.HTTP_USE_ETAG_DEFAULT)).thenReturn(false);
+  httpCacheToolkit.addEtag(context,result,0L);
+  verify(result).addHeader(HttpHeaderConstants.CACHE_CONTROL,"no-cache");
+  verify(result,never()).addHeader(HttpHeaderConstants.ETAG,eq(anyString()));
+  reset(result);
+  when(ninjaProperties.getBooleanWithDefault(NinjaConstant.HTTP_USE_ETAG,NinjaConstant.HTTP_USE_ETAG_DEFAULT)).thenReturn(true);
+  httpCacheToolkit.addEtag(context,result,1234L);
+  verify(result).addHeader(HttpHeaderConstants.CACHE_CONTROL,"no-cache");
+  verify(result).addHeader(HttpHeaderConstants.ETAG,"\"1234\"");
+  when(context.getMethod()).thenReturn("GET");
+  when(context.getHeader(HttpHeaderConstants.IF_NONE_MATCH)).thenReturn("\"1234\"");
+  reset(result);
+  httpCacheToolkit.addEtag(context,result,1234L);
+  verify(result).status(Result.SC_304_NOT_MODIFIED);
+  when(context.getMethod()).thenReturn("GET");
+  when(context.getHeader(HttpHeaderConstants.IF_NONE_MATCH)).thenReturn("\"12___34\"");
+  reset(result);
+  httpCacheToolkit.addEtag(context,result,1234L);
+  verify(result,never()).status(Result.SC_304_NOT_MODIFIED);
+  verify(result).addHeader(HttpHeaderConstants.LAST_MODIFIED,DateUtil.formatForHttpHeader(1234L));
+}

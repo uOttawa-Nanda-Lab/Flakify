@@ -1,0 +1,65 @@
+/** 
+ * Test create, update and delete events of process instances.
+ */
+@Deployment(resources={"org/activiti/engine/test/api/runtime/oneTaskProcess.bpmn20.xml"}) public void testExecutionEvents() throws Exception {
+  ProcessInstance processInstance=runtimeService.startProcessInstanceByKey("oneTaskProcess");
+  assertNotNull(processInstance);
+  assertEquals(5,listener.getEventsReceived().size());
+  assertTrue(listener.getEventsReceived().get(0) instanceof ActivitiEntityEvent);
+  ActivitiEntityEvent event=(ActivitiEntityEvent)listener.getEventsReceived().get(0);
+  assertEquals(ActivitiEventType.ENTITY_CREATED,event.getType());
+  assertEquals(processInstance.getId(),((Execution)event.getEntity()).getProcessInstanceId());
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(1);
+  assertEquals(ActivitiEventType.ENTITY_INITIALIZED,event.getType());
+  assertEquals(processInstance.getId(),((Execution)event.getEntity()).getProcessInstanceId());
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(2);
+  assertEquals(ActivitiEventType.ENTITY_CREATED,event.getType());
+  assertEquals(processInstance.getId(),((Execution)event.getEntity()).getProcessInstanceId());
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(3);
+  assertEquals(ActivitiEventType.ENTITY_INITIALIZED,event.getType());
+  assertEquals(processInstance.getId(),((Execution)event.getEntity()).getProcessInstanceId());
+  listener.clearEventsReceived();
+  runtimeService.suspendProcessInstanceById(processInstance.getId());
+  runtimeService.activateProcessInstanceById(processInstance.getId());
+  assertEquals(4,listener.getEventsReceived().size());
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(0);
+  assertEquals(processInstance.getId(),((Execution)event.getEntity()).getProcessInstanceId());
+  assertEquals(ActivitiEventType.ENTITY_SUSPENDED,event.getType());
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(1);
+  assertEquals(processInstance.getId(),((Execution)event.getEntity()).getProcessInstanceId());
+  assertEquals(ActivitiEventType.ENTITY_SUSPENDED,event.getType());
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(2);
+  assertEquals(ActivitiEventType.ENTITY_ACTIVATED,event.getType());
+  assertEquals(processInstance.getId(),((Execution)event.getEntity()).getProcessInstanceId());
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(3);
+  assertEquals(ActivitiEventType.ENTITY_ACTIVATED,event.getType());
+  assertEquals(processInstance.getId(),((Execution)event.getEntity()).getProcessInstanceId());
+  listener.clearEventsReceived();
+  repositoryService.suspendProcessDefinitionById(processInstance.getProcessDefinitionId(),true,null);
+  repositoryService.activateProcessDefinitionById(processInstance.getProcessDefinitionId(),true,null);
+  assertEquals(4,listener.getEventsReceived().size());
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(0);
+  assertEquals(processInstance.getId(),((Execution)event.getEntity()).getProcessInstanceId());
+  assertEquals(ActivitiEventType.ENTITY_SUSPENDED,event.getType());
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(1);
+  assertEquals(processInstance.getId(),((Execution)event.getEntity()).getProcessInstanceId());
+  assertEquals(ActivitiEventType.ENTITY_SUSPENDED,event.getType());
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(2);
+  assertEquals(ActivitiEventType.ENTITY_ACTIVATED,event.getType());
+  assertEquals(processInstance.getId(),((Execution)event.getEntity()).getProcessInstanceId());
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(3);
+  assertEquals(ActivitiEventType.ENTITY_ACTIVATED,event.getType());
+  assertEquals(processInstance.getId(),((Execution)event.getEntity()).getProcessInstanceId());
+  listener.clearEventsReceived();
+  runtimeService.updateBusinessKey(processInstance.getId(),"thekey");
+  assertEquals(1,listener.getEventsReceived().size());
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(0);
+  assertEquals(processInstance.getId(),((Execution)event.getEntity()).getId());
+  assertEquals(ActivitiEventType.ENTITY_UPDATED,event.getType());
+  listener.clearEventsReceived();
+  runtimeService.deleteProcessInstance(processInstance.getId(),"Testing events");
+  event=(ActivitiEntityEvent)listener.getEventsReceived().get(0);
+  assertEquals(ActivitiEventType.ENTITY_DELETED,event.getType());
+  assertEquals(processInstance.getId(),((Execution)event.getEntity()).getProcessInstanceId());
+  listener.clearEventsReceived();
+}

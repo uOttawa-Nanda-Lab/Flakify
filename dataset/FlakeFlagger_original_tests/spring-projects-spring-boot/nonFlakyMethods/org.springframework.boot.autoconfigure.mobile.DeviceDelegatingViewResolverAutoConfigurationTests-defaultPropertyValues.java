@@ -1,0 +1,31 @@
+@Test public void defaultPropertyValues() throws Exception {
+  this.context=new AnnotationConfigEmbeddedWebApplicationContext();
+  EnvironmentTestUtils.addEnvironment(this.context,"spring.mobile.devicedelegatingviewresolver.enabled:true");
+  this.context.register(Config.class,WebMvcAutoConfiguration.class,HttpMessageConvertersAutoConfiguration.class,PropertyPlaceholderAutoConfiguration.class,DeviceDelegatingViewResolverConfiguration.class);
+  this.context.refresh();
+  LiteDeviceDelegatingViewResolver liteDeviceDelegatingViewResolver=this.context.getBean("deviceDelegatingViewResolver",LiteDeviceDelegatingViewResolver.class);
+  Field normalPrefixField=ReflectionUtils.findField(LiteDeviceDelegatingViewResolver.class,"normalPrefix");
+  normalPrefixField.setAccessible(true);
+  String normalPrefix=(String)ReflectionUtils.getField(normalPrefixField,liteDeviceDelegatingViewResolver);
+  assertEquals("",normalPrefix);
+  Field mobilePrefixField=ReflectionUtils.findField(LiteDeviceDelegatingViewResolver.class,"mobilePrefix");
+  mobilePrefixField.setAccessible(true);
+  String mobilePrefix=(String)ReflectionUtils.getField(mobilePrefixField,liteDeviceDelegatingViewResolver);
+  assertEquals("mobile/",mobilePrefix);
+  Field tabletPrefixField=ReflectionUtils.findField(LiteDeviceDelegatingViewResolver.class,"tabletPrefix");
+  tabletPrefixField.setAccessible(true);
+  String tabletPrefix=(String)ReflectionUtils.getField(tabletPrefixField,liteDeviceDelegatingViewResolver);
+  assertEquals("tablet/",tabletPrefix);
+  Field normalSuffixField=ReflectionUtils.findField(LiteDeviceDelegatingViewResolver.class,"normalSuffix");
+  normalSuffixField.setAccessible(true);
+  String normalSuffix=(String)ReflectionUtils.getField(normalSuffixField,liteDeviceDelegatingViewResolver);
+  assertEquals("",normalSuffix);
+  Field mobileSuffixField=ReflectionUtils.findField(LiteDeviceDelegatingViewResolver.class,"mobileSuffix");
+  mobileSuffixField.setAccessible(true);
+  String mobileSuffix=(String)ReflectionUtils.getField(mobileSuffixField,liteDeviceDelegatingViewResolver);
+  assertEquals("",mobileSuffix);
+  Field tabletSuffixField=ReflectionUtils.findField(LiteDeviceDelegatingViewResolver.class,"tabletSuffix");
+  tabletSuffixField.setAccessible(true);
+  String tabletSuffix=(String)ReflectionUtils.getField(tabletSuffixField,liteDeviceDelegatingViewResolver);
+  assertEquals("",tabletSuffix);
+}

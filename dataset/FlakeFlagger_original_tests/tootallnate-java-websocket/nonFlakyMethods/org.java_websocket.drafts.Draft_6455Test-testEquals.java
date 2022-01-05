@@ -1,0 +1,35 @@
+@Test public void testEquals() throws Exception {
+  Draft draft0=new Draft_6455();
+  Draft draft1=draft0.copyInstance();
+  assertEquals(draft0,draft1);
+  Draft draft2=new Draft_6455(Collections.<IExtension>emptyList(),Collections.<IProtocol>singletonList(new Protocol("chat")));
+  Draft draft3=draft2.copyInstance();
+  assertEquals(draft2,draft3);
+  assertEquals(draft0,draft2);
+  draft2.acceptHandshakeAsServer(handshakedataProtocolExtension);
+  draft1.acceptHandshakeAsServer(handshakedataProtocolExtension);
+  assertNotEquals(draft2,draft3);
+  assertNotEquals(draft0,draft2);
+  assertEquals(draft0,draft1);
+  draft2=draft2.copyInstance();
+  draft1=draft1.copyInstance();
+  draft2.acceptHandshakeAsServer(handshakedataProtocol);
+  draft1.acceptHandshakeAsServer(handshakedataProtocol);
+  assertNotEquals(draft2,draft3);
+  assertNotEquals(draft0,draft2);
+  assertEquals(draft0,draft1);
+  draft2=draft2.copyInstance();
+  draft1=draft1.copyInstance();
+  draft2.acceptHandshakeAsServer(handshakedataExtension);
+  draft1.acceptHandshakeAsServer(handshakedataExtension);
+  assertEquals(draft2,draft3);
+  assertEquals(draft0,draft2);
+  assertNotEquals(draft0,draft1);
+  draft2=draft2.copyInstance();
+  draft1=draft1.copyInstance();
+  draft2.acceptHandshakeAsServer(handshakedata);
+  draft1.acceptHandshakeAsServer(handshakedata);
+  assertEquals(draft2,draft3);
+  assertEquals(draft0,draft2);
+  assertNotEquals(draft0,draft1);
+}

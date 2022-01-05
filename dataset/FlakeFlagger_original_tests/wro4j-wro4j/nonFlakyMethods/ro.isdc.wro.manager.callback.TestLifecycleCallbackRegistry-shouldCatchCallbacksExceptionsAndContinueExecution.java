@@ -1,0 +1,33 @@
+@Test public void shouldCatchCallbacksExceptionsAndContinueExecution(){
+  final LifecycleCallback failingCallback=Mockito.mock(LifecycleCallback.class);
+  final LifecycleCallback simpleCallback=Mockito.spy(new LifecycleCallbackSupport());
+  Mockito.doThrow(new IllegalStateException()).when(failingCallback).onBeforeModelCreated();
+  Mockito.doThrow(new IllegalStateException()).when(failingCallback).onAfterModelCreated();
+  Mockito.doThrow(new IllegalStateException()).when(failingCallback).onBeforePreProcess();
+  Mockito.doThrow(new IllegalStateException()).when(failingCallback).onAfterPreProcess();
+  Mockito.doThrow(new IllegalStateException()).when(failingCallback).onBeforePostProcess();
+  Mockito.doThrow(new IllegalStateException()).when(failingCallback).onAfterPostProcess();
+  Mockito.doThrow(new IllegalStateException()).when(failingCallback).onBeforeMerge();
+  Mockito.doThrow(new IllegalStateException()).when(failingCallback).onAfterMerge();
+  Mockito.doThrow(new IllegalStateException()).when(failingCallback).onProcessingComplete();
+  registry.registerCallback(factoryFor(failingCallback));
+  registry.registerCallback(factoryFor(simpleCallback));
+  registry.onBeforeModelCreated();
+  registry.onAfterModelCreated();
+  registry.onBeforePreProcess();
+  registry.onAfterPreProcess();
+  registry.onBeforePostProcess();
+  registry.onAfterPostProcess();
+  registry.onBeforeMerge();
+  registry.onAfterMerge();
+  registry.onProcessingComplete();
+  Mockito.verify(simpleCallback).onBeforeModelCreated();
+  Mockito.verify(simpleCallback).onAfterModelCreated();
+  Mockito.verify(simpleCallback).onBeforePreProcess();
+  Mockito.verify(simpleCallback).onAfterPreProcess();
+  Mockito.verify(simpleCallback).onBeforePostProcess();
+  Mockito.verify(simpleCallback).onAfterPostProcess();
+  Mockito.verify(simpleCallback).onBeforeMerge();
+  Mockito.verify(simpleCallback).onAfterMerge();
+  Mockito.verify(simpleCallback).onProcessingComplete();
+}

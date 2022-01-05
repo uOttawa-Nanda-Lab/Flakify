@@ -1,0 +1,31 @@
+@Test public void testGetClosestRowBefore() throws IOException {
+  final byte[] tableAname=Bytes.toBytes("testGetClosestRowBefore");
+  final byte[] row=Bytes.toBytes("row");
+  byte[] firstRow=Bytes.toBytes("ro");
+  byte[] beforeFirstRow=Bytes.toBytes("rn");
+  byte[] beforeSecondRow=Bytes.toBytes("rov");
+  HTable table=TEST_UTIL.createTable(tableAname,new byte[][]{HConstants.CATALOG_FAMILY,Bytes.toBytes("info2")});
+  Put put=new Put(firstRow);
+  Put put2=new Put(row);
+  byte[] zero=new byte[]{0};
+  byte[] one=new byte[]{1};
+  put.add(HConstants.CATALOG_FAMILY,null,zero);
+  put2.add(HConstants.CATALOG_FAMILY,null,one);
+  table.put(put);
+  table.put(put2);
+  Result result=null;
+  result=table.getRowOrBefore(beforeFirstRow,HConstants.CATALOG_FAMILY);
+  assertTrue(result == null);
+  result=table.getRowOrBefore(firstRow,HConstants.CATALOG_FAMILY);
+  assertTrue(result.containsColumn(HConstants.CATALOG_FAMILY,null));
+  assertTrue(Bytes.equals(result.getValue(HConstants.CATALOG_FAMILY,null),zero));
+  result=table.getRowOrBefore(beforeSecondRow,HConstants.CATALOG_FAMILY);
+  assertTrue(result.containsColumn(HConstants.CATALOG_FAMILY,null));
+  assertTrue(Bytes.equals(result.getValue(HConstants.CATALOG_FAMILY,null),zero));
+  result=table.getRowOrBefore(row,HConstants.CATALOG_FAMILY);
+  assertTrue(result.containsColumn(HConstants.CATALOG_FAMILY,null));
+  assertTrue(Bytes.equals(result.getValue(HConstants.CATALOG_FAMILY,null),one));
+  result=table.getRowOrBefore(Bytes.add(row,one),HConstants.CATALOG_FAMILY);
+  assertTrue(result.containsColumn(HConstants.CATALOG_FAMILY,null));
+  assertTrue(Bytes.equals(result.getValue(HConstants.CATALOG_FAMILY,null),one));
+}

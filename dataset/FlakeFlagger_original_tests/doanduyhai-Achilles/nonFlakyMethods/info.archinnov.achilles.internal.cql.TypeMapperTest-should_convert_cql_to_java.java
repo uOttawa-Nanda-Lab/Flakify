@@ -1,0 +1,22 @@
+@SuppressWarnings("rawtypes") @Test public void should_convert_cql_to_java() throws Exception {
+  assertThat((Class)toJavaType(ASCII)).isSameAs(String.class);
+  assertThat((Class)toJavaType(BIGINT)).isSameAs(Long.class);
+  assertThat((Class)toJavaType(BLOB)).isSameAs(ByteBuffer.class);
+  assertThat((Class)toJavaType(BOOLEAN)).isSameAs(Boolean.class);
+  assertThat((Class)toJavaType(COUNTER)).isSameAs(Long.class);
+  assertThat((Class)toJavaType(DECIMAL)).isSameAs(BigDecimal.class);
+  assertThat((Class)toJavaType(DOUBLE)).isSameAs(Double.class);
+  assertThat((Class)toJavaType(FLOAT)).isSameAs(Float.class);
+  assertThat((Class)toJavaType(INET)).isSameAs(InetAddress.class);
+  assertThat((Class)toJavaType(INT)).isSameAs(Integer.class);
+  assertThat((Class)toJavaType(TEXT)).isSameAs(String.class);
+  assertThat((Class)toJavaType(TIMESTAMP)).isSameAs(Date.class);
+  assertThat((Class)toJavaType(UUID)).isSameAs(UUID.class);
+  assertThat((Class)toJavaType(VARCHAR)).isSameAs(String.class);
+  assertThat((Class)toJavaType(VARINT)).isSameAs(BigInteger.class);
+  assertThat((Class)toJavaType(TIMEUUID)).isSameAs(UUID.class);
+  assertThat((Class)toJavaType(LIST)).isSameAs(List.class);
+  assertThat((Class)toJavaType(SET)).isSameAs(Set.class);
+  assertThat((Class)toJavaType(MAP)).isSameAs(Map.class);
+  assertThat((Class)toJavaType(CUSTOM)).isSameAs(ByteBuffer.class);
+}

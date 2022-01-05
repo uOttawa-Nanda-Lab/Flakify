@@ -1,0 +1,23 @@
+@Test public void should_determine_assignabled_from_native_types() throws Exception {
+  assertThat(isAssignableFromNativeType(byte.class)).isTrue();
+  assertThat(isAssignableFromNativeType(Byte.class)).isTrue();
+  assertThat(isAssignableFromNativeType(byte[].class)).isTrue();
+  assertThat(isAssignableFromNativeType(ByteBuffer.wrap("entityValue".getBytes()).getClass())).isTrue();
+  assertThat(isAssignableFromNativeType(Boolean.class)).isTrue();
+  assertThat(isAssignableFromNativeType(boolean.class)).isTrue();
+  assertThat(isAssignableFromNativeType(Date.class)).isTrue();
+  assertThat(isAssignableFromNativeType(Double.class)).isTrue();
+  assertThat(isAssignableFromNativeType(double.class)).isTrue();
+  assertThat(isAssignableFromNativeType(BigDecimal.class)).isTrue();
+  assertThat(isAssignableFromNativeType(Float.class)).isTrue();
+  assertThat(isAssignableFromNativeType(float.class)).isTrue();
+  assertThat(isAssignableFromNativeType(InetAddress.class)).isTrue();
+  assertThat(isAssignableFromNativeType(BigInteger.class)).isTrue();
+  assertThat(isAssignableFromNativeType(Integer.class)).isTrue();
+  assertThat(isAssignableFromNativeType(int.class)).isTrue();
+  assertThat(isAssignableFromNativeType(Long.class)).isTrue();
+  assertThat(isAssignableFromNativeType(long.class)).isTrue();
+  assertThat(isAssignableFromNativeType(String.class)).isTrue();
+  assertThat(isAssignableFromNativeType(UUID.class)).isTrue();
+  assertThat(isAssignableFromNativeType(Object.class)).isFalse();
+}

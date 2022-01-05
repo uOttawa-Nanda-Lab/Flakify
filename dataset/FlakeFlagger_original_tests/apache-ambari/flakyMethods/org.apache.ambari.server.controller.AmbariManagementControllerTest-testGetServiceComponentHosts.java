@@ -1,0 +1,34 @@
+@Test public void testGetServiceComponentHosts() throws AmbariException {
+  clusters.addCluster("c1");
+  Cluster c1=clusters.getCluster("c1");
+  c1.setDesiredStackVersion(new StackId("HDP-0.1"));
+  clusters.addHost("h1");
+  clusters.getHost("h1").setOsType("centos5");
+  clusters.getHost("h1").persist();
+  clusters.mapHostToCluster("h1","c1");
+  Service s1=serviceFactory.createNew(c1,"HDFS");
+  c1.addService(s1);
+  s1.persist();
+  ServiceComponent sc1=serviceComponentFactory.createNew(s1,"DATANODE");
+  s1.addServiceComponent(sc1);
+  sc1.setDesiredState(State.UNINSTALLED);
+  sc1.persist();
+  ServiceComponentHost sch1=serviceComponentHostFactory.createNew(sc1,"h1",false);
+  sc1.addServiceComponentHost(sch1);
+  sch1.setDesiredState(State.INSTALLED);
+  sch1.setState(State.INSTALLING);
+  sch1.setDesiredStackVersion(new StackId("HDP-1.1.0"));
+  sch1.setStackVersion(new StackId("HDP-0.1"));
+  sch1.persist();
+  ServiceComponentHostRequest r=new ServiceComponentHostRequest(c1.getClusterName(),null,null,null,null,null);
+  Set<ServiceComponentHostResponse> resps=controller.getHostComponents(Collections.singleton(r));
+  Assert.assertEquals(1,resps.size());
+  ServiceComponentHostResponse resp=resps.iterator().next();
+  Assert.assertEquals(c1.getClusterName(),resp.getClusterName());
+  Assert.assertEquals(sc1.getName(),resp.getComponentName());
+  Assert.assertEquals(s1.getName(),resp.getServiceName());
+  Assert.assertEquals(sch1.getHostName(),resp.getHostname());
+  Assert.assertEquals(sch1.getDesiredState().toString(),resp.getDesiredState());
+  Assert.assertEquals(sch1.getState().toString(),resp.getLiveState());
+  Assert.assertEquals(sch1.getStackVersion().getStackId(),resp.getStackVersion());
+}
