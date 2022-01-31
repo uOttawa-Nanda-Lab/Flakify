@@ -1,3 +1,0 @@
-@Test public void addComplexResourceAdapterWithElytronAuthCtxt() throws Exception {
-  complexResourceAdapterAddTest(ConnectionSecurityType.ELYTRON_AUTHENTICATION_CONTEXT,ConnectionSecurityType.ELYTRON_AUTHENTICATION_CONTEXT);
-}

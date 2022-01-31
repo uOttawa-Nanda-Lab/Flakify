@@ -1,3 +1,0 @@
-@Test public void addComplexResourceAdapterWithSecurityDomainAndApp_ElytronRecovery() throws Exception {
-  complexResourceAdapterAddTest(ConnectionSecurityType.SECURITY_DOMAIN_AND_APPLICATION,ConnectionSecurityType.ELYTRON);
-}

@@ -1,6 +1,7 @@
-#Flaky Test Classification 
+#Flaky Test Classification cross-validation
 
-dataset="../dataset/Flakify_dataset.csv"
+dataset="../dataset/FlakeFlagger_dataset.csv" #run Flakify on FlakeFlagger_dataset
+#dataset="../dataset/IDoFT_dataset.csv"  #uncomment this to run Flakify on IDoFT dataset
 model_weights="../results/model_weights.pt"
 results_output="../results/"
 

@@ -24,7 +24,7 @@ To detect test smells and retain only code statements related to them, the `src/
 
 # Flakify Replication
 
-This is the guideline for replicating the experiments we used to evaluate Flakify for classifying test cases as flaky and non-flaky.
+This is the guideline for replicating the experiments we used to evaluate Flakify for classifying test cases as flaky and non-flaky using both cross vlidation and per-project validation.
 
 ### Requirements
 This is a list of all required python packages:
@@ -36,22 +36,34 @@ This is a list of all required python packages:
 - torch=1.5.0
 - scikit_learn= 0.22.1
 
-### Input File:
+### Input Files:
 This is a list of input files that are required to accomplish this step:
 * dataset/Flakify_dataset.csv
-This file contains the full code and pre-processed code of the test cases in the dataset, along with their ground truth labels (_flaky_ and _non-flaky_).
+* dataset/IDoFT_dataset.csv
+This file contains the full code and pre-processed code of the test cases in both FlakeFlagger and IDOFT dataset, along with their ground truth labels (_flaky_ and _non-flaky_).
 
 ### Output File:
 * results/Flakify_results.csv 
+* results/per_project_results.csv 
 
 ### Replicating Flakify experiments
-To run the Flakify experiment, navigate to `src\` folder and run the following command:
+To run the Flakify experiment, navigate to `src\` folder and run the following commands for cross validation and per-project validation respectively:
 
 ```console
 bash Flakify_predict.sh
 ```
 
-This will generate the classification results into `results/Flakify_results.csv` for the whole experiment. 
+This will generate the classification results into `results/Flakify_results.csv` for the whole cross validation experiment. 
+
+```console
+bash Flakify_predict_per_project.sh
+```
+
+This will generate the classification results into `results/per_project_results.csv` for the whole per-project validation experiment. 
+
+`results/Flakify_Model.pt` contains the saved model of Flakify on FlakeFlagger Dataset. 
+
+`results/IDOFT_Model.pt` contains the saved model of Flakify on FlakeFlagger Dataset. 
 
 ---
 

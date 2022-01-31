@@ -12,13 +12,24 @@ from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.model_selection import StratifiedKFold
 from sklearn.utils.class_weight import compute_class_weight
 from imblearn.over_sampling import RandomOverSampler
+from sklearn.model_selection import train_test_split
+
 
 # setting the seed for reproducibility
-np.random.seed(0)
-torch.manual_seed(0)
+def set_deterministic(seed):
+    np.random.seed(seed)
+    torch.manual_seed(seed)                    
+    torch.cuda.manual_seed(seed)               
+    torch.cuda.manual_seed_all(seed)           
+    torch.backends.cudnn.deterministic = True 
+
 
 # specify GPU
 device = torch.device("cuda")
+
+
+
+#reading the parameters 
 
 dataset_path = sys.argv[1]
 model_weights_path = sys.argv[2]
@@ -28,16 +39,19 @@ Path(results_output).mkdir(parents=True, exist_ok=True)
 df = pd.read_csv(dataset_path)
 input_data = df['final_code'] # use the 'full_code' column to run Flakify using the full code instead of pre-processed code
 target_data = df['flaky']
+df.head()
+
 
 # balancing the dataset
 def sampling(X_train, y_train, X_valid, y_valid):
+    
     oversampling = RandomOverSampler(
         sampling_strategy='minority', random_state=49)
     x_train = X_train.values.reshape(-1, 1)
     y_train = y_train.values.reshape(-1, 1)
     x_val = X_valid.values.reshape(-1, 1)
     y_val = y_valid.values.reshape(-1, 1)
-
+    
     x_train, y_train = oversampling.fit_resample(x_train, y_train)
     x_val, y_val = oversampling.fit_resample(x_val, y_val)
     x_train = pd.Series(x_train.ravel())
@@ -53,6 +67,8 @@ model_name = "microsoft/codebert-base"
 model_config = AutoConfig.from_pretrained(model_name, return_dict=False, output_hidden_states=True)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 auto_model = AutoModel.from_pretrained(model_name, config=model_config)
+
+
 
 
 # converting code into tokens and then vector representation
@@ -78,6 +94,9 @@ def tokenize_data(train_text, val_text, test_text):
     return tokens_train, tokens_val, tokens_test
 
 
+
+
+
 # converting vector representation to tensors
 def text_to_tensors(tokens_train, tokens_val, tokens_test):
     train_seq = torch.tensor(tokens_train['input_ids'])
@@ -92,6 +111,9 @@ def text_to_tensors(tokens_train, tokens_val, tokens_test):
     return train_seq, train_mask, val_seq, val_mask, test_seq, test_mask
 
 
+
+
+
 # setting seed for data_loaders for output reproducibility
 def seed_worker(worker_id):
     worker_seed = torch.initial_seed() % 2**32
@@ -100,7 +122,9 @@ def seed_worker(worker_id):
 
 
 g = torch.Generator()
-g.manual_seed(0)
+seed = 42 # any number 
+set_deterministic(seed)
+
 
 
 def data_loaders(train_seq, train_mask, train_y, val_seq, val_mask, val_y):
@@ -127,6 +151,7 @@ def data_loaders(train_seq, train_mask, train_y, val_seq, val_mask, val_y):
     val_dataloader = DataLoader(val_data, sampler=val_sampler, batch_size=batch_size, worker_init_fn=seed_worker)
 
     return train_dataloader, val_dataloader
+
 
 
 # setting up the neural network for CodeBERT fine-tuning
@@ -173,6 +198,7 @@ class BERT_Arch(nn.Module):
         final_output = self.softmax(fc2_output)
 
         return final_output
+
 
 
 # training the model
@@ -234,9 +260,11 @@ def train():
     return avg_loss, total_preds
 
 
+
 def format_time(time=None, format=None, rebase=True):
     """See :meth:`I18n.format_time`."""
     return get_i18n().format_time(time, format, rebase)
+
 
 
 # evaluating the model
@@ -294,6 +322,9 @@ def evaluate():
     return avg_loss, total_preds
 
 
+
+
+
 def get_evaluation_scores(tn, fp, fn, tp):
     print("get_score method is defined")
     if(tp == 0):
@@ -309,9 +340,10 @@ def get_evaluation_scores(tn, fp, fn, tp):
     return accuracy, F1, Precision, Recall
 
 
+
 # give test data to the model in chunks to avoid Cuda out of memory error
 def give_test_data_in_chunks(x_test):
-    n = len(x_test) / 15  # 15 chunks
+    n = len(x_test) / 50 
     preds_chunks = None
     for g, x_test_chunk in x_test.groupby(np.arange(len(x_test)) // n):
         tokens_test = tokenizer.batch_encode_plus(
@@ -326,28 +358,21 @@ def give_test_data_in_chunks(x_test):
 
     return preds
 
-
 execution_time = time.time()
 print("Start time of the experiment", execution_time)
-skf = StratifiedKFold(n_splits=10)
+skf = StratifiedKFold(n_splits=10,shuffle=False)
 TN = FP = FN = TP = 0
-test_names_as_list = []
-test_labels_as_list = []
-project_names_as_list = []
-predictions = []
-probabalities = []
 fold_number = 0
 
 for train_index, test_index in skf.split(input_data, target_data):
-    inner_split_point = int(0.8*len(train_index))
-    valid_index = train_index[inner_split_point:]
-    train_index = train_index[:inner_split_point]
-    print(" NOW IN FOLD NUMBER", fold_number)
-    X_train, X_valid, X_test = input_data.iloc[list(train_index)], input_data.iloc[list(
-        valid_index)], input_data.iloc[list(test_index)]
-    y_train, y_valid, y_test = target_data.iloc[list(train_index)], target_data.iloc[list(
-        valid_index)], target_data.iloc[list(test_index)]
 
+    print(" NOW IN FOLD NUMBER", fold_number)
+    X_train, X_test = input_data.iloc[list(train_index)], input_data.iloc[list(test_index)]
+    y_train, y_test = target_data.iloc[list(train_index)], target_data.iloc[list(test_index)]
+    
+    X_train, X_valid, y_train, y_valid=train_test_split(X_train, y_train, random_state=49, test_size=0.2, stratify=y_train)
+    
+    
     X_train, y_train, X_valid, y_valid = sampling(
         X_train, y_train, X_valid, y_valid)
 
@@ -451,3 +476,9 @@ result = result.append(pd.Series([accuracy, F1, Precision, Recall, TN, FP, FN, T
 result.to_csv(results_output + "Flakify_results.csv",  index=False)
 
 print("The processed is completed in : (%s) seconds. " % round((time.time() - execution_time), 5))
+
+
+
+
+
+

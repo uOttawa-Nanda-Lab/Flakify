@@ -1,3 +1,0 @@
-@Test public void addComplexResourceAdapterWithSecurityDomain_ElytronAuthCtxtRecovery() throws Exception {
-  complexResourceAdapterAddTest(ConnectionSecurityType.SECURITY_DOMAIN,ConnectionSecurityType.ELYTRON_AUTHENTICATION_CONTEXT);
-}
