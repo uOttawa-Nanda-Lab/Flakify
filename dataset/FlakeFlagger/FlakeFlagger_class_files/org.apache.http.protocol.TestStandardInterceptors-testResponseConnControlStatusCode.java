@@ -1,0 +1,54 @@
+/*
+ * ====================================================================
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * ====================================================================
+ *
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of the Apache Software Foundation.  For more
+ * information on the Apache Software Foundation, please see
+ * <http://www.apache.org/>.
+ *
+ */
+
+package org.apache.http.protocol;
+
+import java.net.InetAddress;
+
+import org.apache.http.Header;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpInetConnection;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolException;
+import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.message.BasicHttpEntityEnclosingRequest;
+import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.params.CoreProtocolPNames;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+public class TestStandardInterceptors {
+
+    @Test public void testResponseConnControlStatusCode() throws Exception{HttpContext context=new BasicHttpContext(null);BasicHttpRequest request=new BasicHttpRequest("GET","/");request.addHeader(new BasicHeader(HTTP.CONN_DIRECTIVE,HTTP.CONN_KEEP_ALIVE));context.setAttribute(ExecutionContext.HTTP_REQUEST,request);ResponseConnControl interceptor=new ResponseConnControl();int[] statusCodes=new int[]{HttpStatus.SC_BAD_REQUEST,HttpStatus.SC_REQUEST_TIMEOUT,HttpStatus.SC_LENGTH_REQUIRED,HttpStatus.SC_REQUEST_TOO_LONG,HttpStatus.SC_REQUEST_URI_TOO_LONG,HttpStatus.SC_SERVICE_UNAVAILABLE,HttpStatus.SC_NOT_IMPLEMENTED};for (int i=0;i < statusCodes.length;i++){BasicHttpResponse response=new BasicHttpResponse(HttpVersion.HTTP_1_1,statusCodes[i],"Unreasonable");interceptor.process(response,context);Header header=response.getFirstHeader(HTTP.CONN_DIRECTIVE);Assert.assertNotNull(header);Assert.assertEquals(HTTP.CONN_CLOSE,header.getValue());}}
+
+}

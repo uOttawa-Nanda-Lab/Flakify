@@ -1,0 +1,24 @@
+﻿Project Name,Accuracy,F1,Precision,Recall
+achilles,100,100,100,100
+activiti,99,85,80,90
+alluxio,99,99,99,100
+ambari,94,84,75,95
+assertj-core,99,40,25,100
+commons-exec,90,40,25,100
+elastic-job-lite,99,60,50,100
+handlebars.java,99,50,30,100
+hbase,91,88,79,98
+hector,98,96,100,93
+http-request,97,88,88,88
+httpcore,98,81,74,90
+incubator-dubbo,97.23,9.09,6.38,15.78
+java-websocket,98,95,95,95
+logback,99,83,85,81
+ninja,100,100,100,100
+okhttp,95,81,78,85
+orbit,98,93,87.5,100
+spring-boot,92,2,40,1.25
+undertow,98,79,75,85
+wildfly,98,76,65,91
+wro4j ,99,94,88,100
+zxing,99,66,100,50

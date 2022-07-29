@@ -1,0 +1,48 @@
+/**
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ *
+ * Copyright 2012-2015 the original author or authors.
+ */
+package org.assertj.core.internal.classes;
+
+import static org.assertj.core.error.ShouldHaveAnnotations.shouldHaveAnnotations;
+import static org.assertj.core.test.TestData.someInfo;
+import static org.assertj.core.test.TestFailures.failBecauseExpectedAssertionErrorWasNotThrown;
+import static org.assertj.core.util.FailureMessages.actualIsNull;
+import static org.mockito.Mockito.verify;
+
+import java.lang.annotation.*;
+
+import org.assertj.core.api.AssertionInfo;
+import org.assertj.core.internal.ClassesBaseTest;
+import org.assertj.core.util.Sets;
+import org.junit.Test;
+
+/**
+ * Tests for
+ * <code>{@link org.assertj.core.internal.Classes#assertContainsAnnotations(org.assertj.core.api.AssertionInfo, Class, Class[])}</code>
+ * .
+ * 
+ * @author William Delanoue
+ */
+public class Classes_assertContainsAnnotation_Test extends ClassesBaseTest {
+
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  private static @interface MyAnnotation {
+
+  }
+
+  @MyAnnotation
+  private static class AnnotatedClass {
+  }
+
+  @SuppressWarnings("unchecked") @Test() public void should_fail_if_actual_does_not_contains_an_annotation(){AssertionInfo info=someInfo();actual=AnnotatedClass.class;Class<Annotation> expected []=new Class[]{Override.class,Deprecated.class,MyAnnotation.class};try {classes.assertContainsAnnotations(someInfo(),actual,expected);} catch (AssertionError e){verify(failures).failure(info,shouldHaveAnnotations(actual,Sets.<Class<? extends Annotation>>newLinkedHashSet(expected),Sets.<Class<? extends Annotation>>newLinkedHashSet(Override.class,Deprecated.class)));return;}failBecauseExpectedAssertionErrorWasNotThrown();}
+}

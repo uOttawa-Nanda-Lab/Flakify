@@ -1,0 +1,24 @@
+package ro.isdc.wro.model.resource.processor.support;
+
+import static org.junit.Assert.assertEquals;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.junit.Test;
+
+
+/**
+ * @author Alex Objelean
+ * @author Ivar Conradi Østhus
+ * @created 09 may, 2010
+ */
+public class TestDataUriGenerator {
+  private final DataUriGenerator dataUriGenerator = new DataUriGenerator();
+
+  @Test public void shouldGenerateCorrectDataURIForCSSWithCharset() throws IOException{final String expected="data:text/css;charset=UTF-8;base64,aW5wdXQuYnV0dG9uIHsKCWJhY2tncm91bmQ6IHVybChodHRwOi8vd3JvNGouZ29vZ2xlY29kZS5jb20vc3ZuL3dpa2kvaW1nL2ZvbGRlclN0cnVjdHVyZS5wbmcpOwoJYmFja2dyb3VuZC1pbWFnZTogdXJsKCJodHRwOi8vd3JvNGouZ29vZ2xlY29kZS5jb20vc3ZuL3dpa2kvaW1nL2ZvbGRlclN0cnVjdHVyZS5wbmciKTsKCWZpbHRlcjogcHJvZ2lkOkRYSW1hZ2VUcmFuc2Zvcm0uTWljcm9zb2Z0LkFscGhhSW1hZ2VMb2FkZXIoc3JjPSdodHRwOi8vd3JvNGouZ29vZ2xlY29kZS5jb20vc3ZuL3dpa2kvaW1nL2ZvbGRlclN0cnVjdHVyZS5wbmcnLCBzaXppbmdNZXRob2Q9J3NjYWxlJyk7Cn0KLm11bHRpbGluZUFuZFNwYWNlcyB7CiAgYmFja2dyb3VuZDogCiAgICAgdXJsKCAiaHR0cDovL3dybzRqLmdvb2dsZWNvZGUuY29tL3N2bi93aWtpL2ltZy9mb2xkZXJTdHJ1Y3R1cmUucG5nICIgKTsKICBiYWNrZ3JvdW5kLWltYWdlIDogCiAgICAgdXJsKCAiaHR0cDovL3dybzRqLmdvb2dsZWNvZGUuY29tL3N2bi93aWtpL2ltZy9mb2xkZXJTdHJ1Y3R1cmUucG5nICIgKSAgICAgCn0KQGZvbnQtZmFjZSB7CiAgICBzcmM6IHVybChodHRwOi8vd3JvNGouZ29vZ2xlY29kZS5jb20vc3ZuL3dpa2kvaW1nL2ZvbGRlclN0cnVjdHVyZS5wbmcpOwp9";final String actual=dataUriGenerator.generateDataURI(getInputStream("dataUri.css"),"dataUri.css");assertEquals(expected,actual);}
+
+  private InputStream getInputStream(final String filename) {
+    return getClass().getResourceAsStream(filename);
+  }
+}

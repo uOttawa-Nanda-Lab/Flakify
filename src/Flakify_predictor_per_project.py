@@ -14,7 +14,6 @@ from sklearn.utils.class_weight import compute_class_weight
 from imblearn.over_sampling import RandomOverSampler
 from sklearn.model_selection import train_test_split
 
-
 # setting the seed for reproducibility
 def set_deterministic(seed):
     np.random.seed(seed)
@@ -23,35 +22,25 @@ def set_deterministic(seed):
     torch.cuda.manual_seed_all(seed)           
     torch.backends.cudnn.deterministic = True 
 
-
 # specify GPU
 device = torch.device("cuda")
-
-
 
 #reading the parameters 
 
 dataset_path = sys.argv[1]
 model_weights_path = sys.argv[2]
-results_output = sys.argv[3]
-Path(results_output).mkdir(parents=True, exist_ok=True)
+results_file = sys.argv[3]
 
 df = pd.read_csv(dataset_path)
 input_data = df['final_code'] # use the 'full_code' column to run Flakify using the full code instead of pre-processed code
 target_data = df['flaky']
 df.head()
 
-
-#getting the project names
-
+# get project names
 
 project_name=df['project'].unique()
 
-
-# In[27]:
-
-
-# balancing the dataset
+# balance dataset
 def sampling(X_train, y_train, X_valid, y_valid):
     
     oversampling = RandomOverSampler(
@@ -186,7 +175,6 @@ class BERT_Arch(nn.Module):
 
         # softmax activation function
         self.softmax = nn.LogSoftmax(dim=-1)
-
 
     # define the forward pass
     def forward(self, sent_id, mask):
@@ -377,8 +365,6 @@ TN = FP = FN = TP = 0
 x='final_code'
 y='flaky'
 
-
-
 for i in project_name:
     print('testing on project: ', i)
     project_Name=i
@@ -387,13 +373,12 @@ for i in project_name:
     test_dataset= df.loc[(df['project']== i)]
 
     train_x, valid_x, train_y, valid_y = train_test_split(train_dataset[x], train_dataset[y], 
-                                                                    random_state=49, 
-                                                                    test_size=0.2, 
-                                                                    stratify=train_dataset[y])
+                                                          random_state=49, 
+                                                          test_size=0.2, 
+                                                          stratify=train_dataset[y])
     test_x=test_dataset[x]
 
     test_y=test_dataset[y]
-
 
     #     resampling of train and validation datasets
 
@@ -401,9 +386,7 @@ for i in project_name:
 
     #tokenize the test cases in  train, validation and test datasets
 
-
     tokens_train, tokens_val, tokens_test = tokenize_data(X_train, X_valid, test_x)
-
 
     # converting labels of train, validation and test into tensors
 
@@ -501,6 +484,6 @@ for i in project_name:
 
     result = result.append(pd.Series([project_Name,accuracy, F1, Precision, Recall, TN, FP, FN, TP], index=result.columns), ignore_index=True)
 
-result.to_csv(results_output + "per_project_results.csv",  index=False)
+result.to_csv(results_file,  index=False)
 
 
