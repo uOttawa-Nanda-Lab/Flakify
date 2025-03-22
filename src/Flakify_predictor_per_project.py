@@ -366,9 +366,9 @@ x='final_code'
 y='flaky'
 
 for i in project_name:
+    auto_model = AutoModel.from_pretrained(model_name, config=model_config) #this is done to avoid data leakege within the model
     print('testing on project: ', i)
     project_Name=i
-    
     train_dataset=  df.loc[(df['project'] != i)]
     test_dataset= df.loc[(df['project']== i)]
 
@@ -383,7 +383,7 @@ for i in project_name:
     #     resampling of train and validation datasets
 
     X_train, y_train, X_valid, y_valid = sampling(train_x, train_y, valid_x, valid_y)
-
+    
     #tokenize the test cases in  train, validation and test datasets
 
     tokens_train, tokens_val, tokens_test = tokenize_data(X_train, X_valid, test_x)

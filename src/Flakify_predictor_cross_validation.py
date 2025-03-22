@@ -331,7 +331,7 @@ TN = FP = FN = TP = 0
 fold_number = 0
 
 for train_index, test_index in skf.split(input_data, target_data):
-
+    auto_model = AutoModel.from_pretrained(model_name, config=model_config) #this is done to avoid data leakege within the model
     print(" NOW IN FOLD NUMBER", fold_number)
     X_train, X_test = input_data.iloc[list(train_index)], input_data.iloc[list(test_index)]
     y_train, y_test = target_data.iloc[list(train_index)], target_data.iloc[list(test_index)]
