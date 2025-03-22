@@ -126,3 +126,8 @@ bash FlakeFlagger_predictor.sh black-box
 ```
 
 This will generate the classification results into `results/FlakeFlagger_white-box_results.csv` and `results/FlakeFlagger_black-box_results.csv` for the both white-box and black-box experiments, respectively.
+
+### Update: 
+A bug was identified in *src/Flakify_predictor_cross_validation.py and *src/Flakify_predictor_per_project.py concerning potential data leakage caused by reusing the same auto_model in each iteration during per-project and cross-validation. We have addressed this issue by initializing a new auto_model separately for each iteration.
+
+While this adjustment results in slightly lower accuracy compared to previously reported results, the accuracy is still higher than the state of the art. Nonetheless, the conclusions of the paper remain valid, even after this fix.
